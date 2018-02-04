@@ -1,0 +1,11 @@
+#!/usr/bin/env perl6
+
+#--------------------------------------------------------------------------------
+# Nigel Hamilton (2016-now) - Artistic Licence 2.0
+#
+# jmp - find matching files and jump into your $EDITOR
+#
+#--------------------------------------------------------------------------------
+
+use lib 'lib';
+use JMP::CLI;

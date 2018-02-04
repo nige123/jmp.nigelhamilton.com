@@ -10,7 +10,6 @@ method new      { !!!   }
 method width    { chomp(qx[tput cols]).Int     }
 method height   { chomp(qx[tput lines]).Int    }
 method clear    { shell 'clear'     }
-method home     { %*ENV{'HOME'}     }
 method get-key  { 
     ENTER shell "stty raw -echo";
     LEAVE shell "stty sane";
@@ -23,7 +22,6 @@ class Win {
     method width    { qx[powershell.exe -noprofile -command $host.ui.rawui.WindowSize.Width]  }
     method height   { qx[powershell.exe -noprofile -command $host.ui.rawui.WindowSize.Height] }
     method clear    { shell 'cls' }
-    method home     { %*ENV{'HOMEPATH'} }
     method get-key  {
         qx[powershell.exe -noprofile -command $host.UI.RawUI.ReadKey('NoEcho,IncludeKeyUp').Character].substr(0,1)
     }

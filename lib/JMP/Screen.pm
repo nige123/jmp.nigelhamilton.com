@@ -16,14 +16,15 @@ class JMP::Screen {
         my $previous-file-path = '';    
         my @actions;
         for @hits -> $hit {
+
             if $previous-file-path ne $hit.file-path {
                 # outdent new files with an action to open at line 1
                 @actions.push(JMP::Screen::Action::EditFile.new(:$editor, file-path => $hit.file-path));
                 $previous-file-path = $hit.file-path;
             }
+		
             my $context = substr($hit.context, 0, $!content-line-width - 13);   # make allowance for action keys [a]        
-            $context = $context.subst($search-terms, color('inverse') ~ $search-terms ~ color('reset'), :g);
-
+	    $context = $context.subst($search-terms, color('inverse') ~ $search-terms ~ color('reset'), :g);
             @actions.push(JMP::Screen::Action::EditFileLine.new(:$editor, :$context, file-path => $hit.file-path, line-number => $hit.line-number));
         }
         self.paginate(@actions);

@@ -41,7 +41,9 @@ method edit-file-at-matching-line ($filename, $search-terms) {
 method find ($search-terms) {
 
     # finish if nothing found?    
-    return unless my @hits = self.finder.find-in-files($search-terms);
+    my @hits = self.finder.find-in-files($search-terms);
+
+    return unless @hits.elems;
 
     # prepare to show a screenful of results
     my $screen = JMP::Screen.new(title => 'jmp find ' ~ $search-terms);

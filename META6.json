@@ -5,7 +5,7 @@
     "auth"        : "github:nige123",
     "description" : "search files and jump to matching lines in a text editor",
     "license"     : "Artistic-2.0",
-    "depends"     : [ "Terminal::ANSIColor" ],
+    "depends"     : [ "Terminal::ANSIColor", "Test::META" ],
     "provides"    : {
         "JMP"                               : "lib/JMP.pm",
         "JMP::CLI"                          : "lib/JMP/CLI.pm",

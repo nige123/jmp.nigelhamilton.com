@@ -1,6 +1,6 @@
-use JMP::Finder::Hit;
+use JMP::Hit;
 
-class JMP::Finder {
+class JMP::Find {
    
     has $.config;
 
@@ -10,10 +10,16 @@ class JMP::Finder {
 
         my @hits;
 
+        my $previous-file = '';
+
         for qqx{$find-command}.lines -> $line {
             my ($file-path, $line-number, $context) = $line.split(':', 3);
-	    next unless $context;
-            @hits.push(JMP::Finder::Hit.new(:$file-path, :$line-number, :$context));
+        
+            if ($file-path ne $previous-file) {
+                @hits.push(JMP::Hit.new(:$file-path));
+                $previous-file = $file-path;
+            }                
+            @hits.push(JMP::Hit.new(:$file-path, :$line-number, :$context));
         }
 
         return @hits;

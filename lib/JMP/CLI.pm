@@ -12,7 +12,9 @@ sub USAGE is export {
         jmp config -- edit ~/.jmp config to set the editor and search commands 
         jmp edit <filename> [<line-number>] -- start editing at a line number
         jmp edit <filename> '[<search-terms> ...]' -- start editing at a matching line
-        jmp find '[<search-terms> ...]' -- find search terms in files    
+        jmp file '[<search-terms> ...]' -- find matching filenames   
+        jmp find '[<search-terms> ...]' -- find search terms within files    
+
     USAGE
 }
 
@@ -35,5 +37,10 @@ multi sub MAIN ('edit', $filename, *@search-terms) is export {
 
 #| find search terms in files
 multi sub MAIN ('find', *@search-terms) is export {
-    $jmp.find(@search-terms.join(' '));
+    $jmp.search-in-files(@search-terms.join(' '));
+}
+
+#| find matching file names
+multi sub MAIN ('file', *@search-terms) is export {
+    $jmp.find-matching-filenames(@search-terms.join(' '));
 }

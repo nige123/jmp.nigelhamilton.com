@@ -3,7 +3,14 @@
 #--------------------------------------------------------------------------------
 # Nigel Hamilton (2016-now) - Artistic Licence 2.0
 #
-# jmp - search files and jump to matching lines in a text editor
+#   jmp - search files and jump to matching lines in a text editor
+#
+#   Usage:
+#    
+#       jmp config -- edit ~/.jmp config to set the editor and search commands 
+#       jmp edit <filename> [<line-number>] -- start editing at a line number
+#       jmp edit <filename> '[<search-terms> ...]' -- start editing at a matching line
+#       jmp find '[<search-terms> ...]' -- find search terms in files  
 #
 #--------------------------------------------------------------------------------
 

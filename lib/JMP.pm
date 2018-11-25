@@ -11,12 +11,14 @@ unit class JMP;
 
 use JMP::Config;
 use JMP::Editor;
-use JMP::Finder;
-use JMP::Screen;
+use JMP::File;
+use JMP::Find;
+use JMP::UI;
 
 has JMP::Config $.config;
 has JMP::Editor $.editor;
-has JMP::Finder $.finder;
+has JMP::Find   $.find;
+has JMP::File   $.file;
 
 method edit-config { 
     $!editor.edit-file($!config.config-file);   
@@ -38,22 +40,43 @@ method edit-file-at-matching-line ($filename, $search-terms) {
     return $!editor.edit-file($filename, 1);    
 }
 
-method find ($search-terms) {
+method search-in-files ($search-terms) {
 
     # finish if nothing found?    
-    my @hits = self.finder.find-in-files($search-terms);
+    my @hits = self.find.find-in-files($search-terms);
 
     return unless @hits.elems;
 
     # prepare to show a screenful of results
-    my $screen = JMP::Screen.new(title => 'jmp find ' ~ $search-terms);
-    $screen.add-edit-actions($!editor, $search-terms, @hits);
-    $screen.display-page(1);
+    my $screen = JMP::UI.new(
+        title => 'jmp find ' ~ $search-terms, 
+        :@hits,
+        :$!editor,
+    );
+    $screen.display;
+
+}
+
+method find-matching-filenames ($search-terms) {
+
+    # finish if nothing found?    
+    my @hits = self.file.find-matching-filenames($search-terms);
+
+    return unless @hits.elems;
+
+    # prepare to show a screenful of results
+    my $screen = JMP::UI.new(
+        title => 'jmp file ' ~ $search-terms, 
+        :@hits,
+        :$!editor,
+    );
+    $screen.display;
 
 }
 
 submethod BUILD {
     $!config = JMP::Config.new;
     $!editor = JMP::Editor.new(:$!config);
-    $!finder = JMP::Finder.new(:$!config);
+    $!file   = JMP::File.new(:$!config);
+    $!find   = JMP::Find.new(:$!config);
 }

@@ -1,25 +1,23 @@
 {
     "perl"        : "6",
     "name"        : "jmp",
-    "version"     : "0.2",
+    "version"     : "0.4",
     "auth"        : "github:nige123",
     "description" : "search files and jump to matching lines in a text editor",
     "license"     : "Artistic-2.0",
-    "depends"     : [ "Terminal::ANSIColor", "Test::META" ],
+    "depends"     : [ "Terminal::Print", "Test::META" ],
     "provides"    : {
-        "JMP"                               : "lib/JMP.pm",
-        "JMP::CLI"                          : "lib/JMP/CLI.pm",
-        "JMP::Config"                       : "lib/JMP/Config.pm",
-        "JMP::Editor"                       : "lib/JMP/Editor.pm",
-        "JMP::Finder"                       : "lib/JMP/Finder.pm",
-        "JMP::Finder::Hit"                  : "lib/JMP/Finder/Hit.pm",
-        "JMP::Screen"                       : "lib/JMP/Screen.pm",
-        "JMP::Screen::Action"               : "lib/JMP/Screen/Action.pm",
-        "JMP::Screen::Action::EditFileLine" : "lib/JMP/Screen/Action/EditFileLine.pm",
-        "JMP::Screen::Action::EditFile"     : "lib/JMP/Screen/Action/EditFile.pm",
-        "JMP::Screen::Page"                 : "lib/JMP/Screen/Page.pm",
-        "JMP::System"                       : "lib/JMP/System.pm",
-        "JMP::Template"                     : "lib/JMP/Template.pm"
+        "JMP"               : "lib/JMP.pm",
+        "JMP::CLI"          : "lib/JMP/CLI.pm",
+        "JMP::Config"       : "lib/JMP/Config.pm",
+        "JMP::Editor"       : "lib/JMP/Editor.pm",
+        "JMP::Find"         : "lib/JMP/Find.pm",
+        "JMP::File"         : "lib/JMP/File.pm",
+        "JMP::Hit"          : "lib/JMP/Hit.pm",
+        "JMP::UI"           : "lib/JMP/UI.pm",
+        "JMP::UI::Cursor"   : "lib/JMP/UI/Cursor.pm",
+        "JMP::UI::Page"     : "lib/JMP/UI/Page.pm",
+        "JMP::UI::Pager"    : "lib/JMP/UI/Pager.pm"
     },
     "resources" : [],
     "authors" : [ "Nigel Hamilton" ],
@@ -28,7 +26,8 @@
     },
     "tags"        : [
         "invoke-editor",
-        "code-search"
+        "code-search",
+        "file-search"
     ],
     "source-url"  : "git://github.com/nige123/jmp.nigelhamilton.com.git"
 }

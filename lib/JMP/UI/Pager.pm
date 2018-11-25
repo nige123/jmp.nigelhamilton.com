@@ -54,6 +54,13 @@ class JMP::UI::Pager {
         $!current-page.display($!screen);
     }
 
+    method edit-selected ($editor) {
+                
+        my $hit = $!current-page.get-selected-hit;
+        $editor.edit-file($hit.file-path, $hit.line-number);
+        $!current-page.display($!screen, $!current-page.cursor.at-line);
+    }
+
     method next {        
         return if $!current-page.is-last-page;
         $!current-page = %!pages{$!current-page.page-number + 1};

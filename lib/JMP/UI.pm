@@ -55,9 +55,7 @@ class JMP::UI {
                     self.pager.previous;
                 }
                 when $_.ord == 13 {
-                    my $hit = self.pager.current-page.get-selected-hit;
-                    $!editor.edit-file($hit.file-path, $hit.line-number);
-                    self.pager.display-page;
+                    self.pager.edit-selected($!editor);
                 }
             }
         }

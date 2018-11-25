@@ -54,7 +54,8 @@ class JMP::UI {
                 when 'CursorLeft' | 'PageUp' {
                     self.pager.previous;
                 }
-                when $_.ord == 13 {
+                when $_ ~~ Str and $_.ord == 13 {
+                    # the user pressed <ENTER>
                     self.pager.edit-selected($!editor);
                 }
             }

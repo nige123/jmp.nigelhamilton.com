@@ -1,7 +1,7 @@
 {
     "perl"        : "6",
     "name"        : "jmp",
-    "version"     : "0.4",
+    "version"     : "0.5",
     "auth"        : "github:nige123",
     "description" : "search files and jump to matching lines in a text editor",
     "license"     : "Artistic-2.0",

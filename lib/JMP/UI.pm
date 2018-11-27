@@ -37,12 +37,6 @@ class JMP::UI {
                 when Tick {
                     # tock - time passes
                 }
-                when 'x' | 'X' {
-                    $!screen.current-grid.disable;
-                    $!screen.shutdown-screen;
-                    run('reset');
-                    exit;
-                }
                 when 'CursorUp' {
                     self.pager.cursor-up;
                 }
@@ -59,10 +53,9 @@ class JMP::UI {
                     # the user pressed <ENTER>
                     self.pager.edit-selected($!editor);
                 }
-            LAST {
-                say "last fired";
-            }
-
+                when 'x' | 'X' {
+                    self.pager.exit-page;
+                }
             }
         }
     }

@@ -61,6 +61,13 @@ class JMP::UI::Pager {
         $!current-page.display($!screen, $!current-page.cursor.at-line);
     }
 
+    method exit-page {
+        $!screen.current-grid.disable;
+        $!screen.shutdown-screen;   # not ideal: https://github.com/ab5tract/Terminal-Print/issues/59
+        run('reset');               # patches welcome
+        exit;
+    }
+
     method next {        
         return if $!current-page.is-last-page;
         $!current-page = %!pages{$!current-page.page-number + 1};

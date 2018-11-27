@@ -87,6 +87,19 @@ class JMP::Config {
         # App::Ack - Perl-powered improvement to grep
         # find.command.template     = ack --nogroup '[-search-terms-]'
         
+        #--------------------------------------------------------------------
+        # uncomment or add your preferred file finding tool
+        #--------------------------------------------------------------------
+
+        # find filenames matching search terms - on *nix systems
+        file.command.template = locate '[-search-terms-]'
+
+        # use find 
+        # find.command.template = find . -name '[-search-terms-]' -print
+
+        # for a windows environment
+        # find.command.template = dir [-search-terms-] /s
+
         CONFIG
 
     }

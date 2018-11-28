@@ -13,8 +13,11 @@ class JMP::Find {
         my $previous-file = '';
 
         for qqx{$find-command}.lines -> $line {
+
             my ($file-path, $line-number, $context) = $line.split(':', 3);
-        
+
+            next without $file-path and $line-number;
+                    
             if ($file-path ne $previous-file) {
                 @hits.push(JMP::Hit.new(:$file-path));
                 $previous-file = $file-path;

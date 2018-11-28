@@ -34,28 +34,14 @@ class JMP::UI {
 
         react {
             whenever $supplies -> $_ {
-                when Tick {
-                    # tock - time passes
-                }
-                when 'CursorUp' {
-                    self.pager.cursor-up;
-                }
-                when 'CursorDown' {
-                    self.pager.cursor-down;
-                }
-                when 'CursorRight' | 'PageDown' {
-                    self.pager.next;
-                }
-                when 'CursorLeft' | 'PageUp' {
-                    self.pager.previous;
-                }
-                when $_ ~~ Str and $_.ord == 13 {
-                    # the user pressed <ENTER>
-                    self.pager.edit-selected($!editor);
-                }
-                when 'x' | 'X' {
-                    self.pager.exit-page;
-                }
+                when Tick {}
+                when 'CursorUp'                 {   self.pager.cursor-up;               }
+                when 'CursorDown'               {   self.pager.cursor-down;             }
+                when 'CursorRight' | 'PageDown' {   self.pager.next;                    }
+                when 'CursorLeft'  | 'PageUp'   {   self.pager.previous;                }
+                when 'e' | 'E'                  {   self.pager.edit-selected($!editor); }
+                when $_ ~~ Str and $_.ord == 13 {   self.pager.edit-selected($!editor); }
+                when 'x' | 'X'                  {   self.pager.exit-page;               }
             }
         }
     }

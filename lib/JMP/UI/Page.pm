@@ -35,10 +35,10 @@ class JMP::UI::Page {
     }
         
     submethod get-footer-actions { 
-        return '                      e[X]it                  ' if $!page-number == 1 and $!total-pages == 1;
-        return '                      e[X]it            Next 🠊' if $!page-number == 1;
-        return '🠈 Previous            e[X]it                  ' if $!page-number == $!total-pages;
-        return '🠈 Previous            e[X]it            Next 🠊';
+        return '                [E]dit      e[X]it            ' if $!page-number == 1 and $!total-pages == 1;
+        return '                [E]dit      e[X]it      Next 🠊' if $!page-number == 1;
+        return '🠈 Previous      [E]dit      e[X]it            ' if $!page-number == $!total-pages;
+        return '🠈 Previous      [E]dit      e[X]it      Next 🠊';
     }
 
     method is-first-page {

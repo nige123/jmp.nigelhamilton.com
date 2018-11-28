@@ -40,23 +40,6 @@ method edit-file-at-matching-line ($filename, $search-terms) {
     return $!editor.edit-file($filename, 1);    
 }
 
-method search-in-files ($search-terms) {
-
-    # finish if nothing found?    
-    my @hits = self.find.find-in-files($search-terms);
-
-    return unless @hits.elems;
-
-    # prepare to show a screenful of results
-    my $screen = JMP::UI.new(
-        title => 'jmp find ' ~ $search-terms, 
-        :@hits,
-        :$!editor,
-    );
-    $screen.display;
-
-}
-
 method find-matching-filenames ($search-terms) {
 
     # finish if nothing found?    
@@ -67,6 +50,23 @@ method find-matching-filenames ($search-terms) {
     # prepare to show a screenful of results
     my $screen = JMP::UI.new(
         title => 'jmp file ' ~ $search-terms, 
+        :@hits,
+        :$!editor,
+    );
+    $screen.display;
+
+}
+
+method search-in-files ($search-terms) {
+
+    # finish if nothing found?    
+    my @hits = self.find.find-in-files($search-terms);
+
+    return unless @hits.elems;
+
+    # prepare to show a screenful of results
+    my $screen = JMP::UI.new(
+        title => 'jmp find ' ~ $search-terms, 
         :@hits,
         :$!editor,
     );

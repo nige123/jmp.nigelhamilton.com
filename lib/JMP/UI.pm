@@ -35,13 +35,13 @@ class JMP::UI {
         react {
             whenever $supplies -> $_ {
                 when Tick {}
-                when 'CursorUp'                 {   self.pager.cursor-up;               }
-                when 'CursorDown'               {   self.pager.cursor-down;             }
-                when 'CursorRight' | 'PageDown' {   self.pager.next;                    }
-                when 'CursorLeft'  | 'PageUp'   {   self.pager.previous;                }
-                when 'e' | 'E'                  {   self.pager.edit-selected($!editor); }
-                when $_ ~~ Str and $_.ord == 13 {   self.pager.edit-selected($!editor); }
-                when 'x' | 'X'                  {   self.pager.exit-page;               }
+                when 'CursorUp'    | 'k'              { self.pager.cursor-up;               }
+                when 'CursorDown'  | 'j'              { self.pager.cursor-down;             }
+                when 'CursorRight' | 'l' | 'PageDown' { self.pager.next;                    }
+                when 'CursorLeft'  | 'h' | 'PageUp'   { self.pager.previous;                }
+                when 'e' | 'E'                        { self.pager.edit-selected($!editor); }
+                when $_ ~~ Str and $_.ord == 13       { self.pager.edit-selected($!editor); }
+                when 'x' | 'X' | 'q' | 'Q'            { self.pager.exit-page;               }
             }
         }
     }

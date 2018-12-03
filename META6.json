@@ -1,7 +1,7 @@
 {
     "perl"        : "6",
     "name"        : "jmp",
-    "version"     : "2.0",
+    "version"     : "2.1",
     "auth"        : "github:nige123",
     "description" : "search files and jump to matching lines in a text editor",
     "license"     : "Artistic-2.0",
@@ -14,6 +14,7 @@
         "JMP::Find"         : "lib/JMP/Find.pm",
         "JMP::File"         : "lib/JMP/File.pm",
         "JMP::Hit"          : "lib/JMP/Hit.pm",
+        "JMP::Template"     : "lib/JMP/Template.pm",
         "JMP::UI"           : "lib/JMP/UI.pm",
         "JMP::UI::Cursor"   : "lib/JMP/UI/Cursor.pm",
         "JMP::UI::Page"     : "lib/JMP/UI/Page.pm",

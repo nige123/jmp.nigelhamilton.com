@@ -1,5 +1,4 @@
 
-use JMP::System;
 use JMP::Template;
 
 # simple config file handling

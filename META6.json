@@ -14,6 +14,8 @@
         "JMP::Find"         : "lib/JMP/Find.pm",
         "JMP::File"         : "lib/JMP/File.pm",
         "JMP::Hit"          : "lib/JMP/Hit.pm",
+        "JMP::System"       : "lib/JMP/System.pm",
+        "JMP::Template"     : "lib/JMP/Template.pm",
         "JMP::UI"           : "lib/JMP/UI.pm",
         "JMP::UI::Cursor"   : "lib/JMP/UI/Cursor.pm",
         "JMP::UI::Page"     : "lib/JMP/UI/Page.pm",

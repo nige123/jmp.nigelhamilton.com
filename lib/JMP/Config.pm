@@ -48,27 +48,50 @@ class JMP::Config {
     # set up the user with a default config
     # this is a helper sub called at object BUILD time
     submethod populate-default-config-file {
+        my Str $nano;
+        my Str $atom;
+        my Str $code;
+        my Str $subl;
+        my Str $emacs;
+        my Str $vim;
+
+        given %*ENV{'EDITOR'} {
+            when 'nano'  { $nano  = 'editor.command.template   = nano +[-line-number-] "[-filename-]"'; }
+            when 'atom'  { $atom  = 'editor.command.template   = atom [-filename-]:[-line-number-] &'; }
+            when 'code'  { $code  = 'editor.command.template   = code -g [-filename-]:[-line-number-] &'; }
+            when 'subl'  { $subl  = 'editor.command.template   = subl [-filename-]:[-line-number-] &'; }
+            when 'emacs' { $emacs = 'editor.command.template   = emacs +[-line-number-]'; }
+            when 'vim'   { $vim   = 'editor.command.template   = vim +[-line-number-] [-filename-]'; }
+            default      { $nano  = 'editor.command.template   = nano +[-line-number-] "[-filename-]"'; }
+        }
+
+        $nano  = $nano  || '# editor.command.template   = nano +[-line-number-] "[-filename-]"';
+        $atom  = $atom  || '# editor.command.template   = atom [-filename-]:[-line-number-] &';
+        $code  = $code  || '# editor.command.template   = code -g [-filename-]:[-line-number-] &';
+        $subl  = $subl  || '# editor.command.template   = subl [-filename-]:[-line-number-] &';
+        $emacs = $emacs || '# editor.command.template   = emacs +[-line-number-]';
+        $vim   = $vim   || '# editor.command.template   = vim +[-line-number-] [-filename-]';
 
         # populate the default config file
         # HEREdocs can be indented! The CONFIG end marker provides the 
         # indentation level 
         # .IO provides simple methods for slurping/spurting files to disk
-        $!config-file.IO.spurt(q:to"CONFIG");
+        $!config-file.IO.spurt(qq:to"CONFIG");
         
         #--------------------------------------------------------------------
         # uncomment or add your favourite text editor
         #--------------------------------------------------------------------
         
-        editor.command.template   = nano +[-line-number-] "[-filename-]"
+        $nano
         
         # atom has Perl 6 syntax highlighting and other plugins for Perl 6
-        # editor.command.template   = atom [-filename-]:[-line-number-] &
+        $atom
         
-        # editor.command.template   = code -g [-filename-]:[-line-number-] &
+        $code
         
-        # editor.command.template   = subl [-filename-]:[-line-number-] &
-        # editor.command.template   = emacs +[-line-number-]
-        # editor.command.template   = vim +[-line-number-] [-filename-]
+        $subl
+        $emacs
+        $vim
         
         #--------------------------------------------------------------------
         # uncomment or add your preferred code searching tool (below)

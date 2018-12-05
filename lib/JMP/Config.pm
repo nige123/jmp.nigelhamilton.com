@@ -48,21 +48,22 @@ class JMP::Config {
     # set up the user with a default config
     # this is a helper sub called at object BUILD time
     submethod populate-default-config-file {
+        my $editor;
         my %editors;
 
-        %editors{'nano'}  = '# editor.command.template   = nano +[-line-number-] "[-filename-]"';
         %editors{'atom'}  = '# editor.command.template   = atom [-filename-]:[-line-number-] &';
         %editors{'code'}  = '# editor.command.template   = code -g [-filename-]:[-line-number-] &';
-        %editors{'subl'}  = '# editor.command.template   = subl [-filename-]:[-line-number-] &';
         %editors{'emacs'} = '# editor.command.template   = emacs +[-line-number-]';
+        %editors{'nano'}  = '# editor.command.template   = nano +[-line-number-] "[-filename-]"';
+        %editors{'subl'}  = '# editor.command.template   = subl [-filename-]:[-line-number-] &';
         %editors{'vim'}   = '# editor.command.template   = vim +[-line-number-] [-filename-]';
-        
-        if (?%editors{%*ENV{'EDITOR'}}) {
-            %editors{%*ENV{'EDITOR'}} .= substr(2);
+
+        if (?%*ENV{'EDITOR'}) {
+            $editor = %*ENV{'EDITOR'}.IO.is-absolute ?? %*ENV{'EDITOR'}.IO.basename !! %*ENV{'EDITOR'};
         }
-        else {
-            %editors{'nano'} .= substr(2);
-		}
+
+        $editor = 'nano' unless ?%editors{$editor};
+        %editors{$editor} .= substr(2);
 
         # populate the default config file
         # HEREdocs can be indented! The CONFIG end marker provides the 
@@ -75,7 +76,7 @@ class JMP::Config {
         #--------------------------------------------------------------------
         
         {
-            %editors.values.join("\n");
+            %editors.values.sort.join("\n");
         }
         
         #--------------------------------------------------------------------

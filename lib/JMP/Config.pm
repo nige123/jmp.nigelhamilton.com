@@ -48,29 +48,21 @@ class JMP::Config {
     # set up the user with a default config
     # this is a helper sub called at object BUILD time
     submethod populate-default-config-file {
-        my Str $nano;
-        my Str $atom;
-        my Str $code;
-        my Str $subl;
-        my Str $emacs;
-        my Str $vim;
+        my %editors;
 
-        given %*ENV{'EDITOR'} {
-            when 'nano'  { $nano  = 'editor.command.template   = nano +[-line-number-] "[-filename-]"'; }
-            when 'atom'  { $atom  = 'editor.command.template   = atom [-filename-]:[-line-number-] &'; }
-            when 'code'  { $code  = 'editor.command.template   = code -g [-filename-]:[-line-number-] &'; }
-            when 'subl'  { $subl  = 'editor.command.template   = subl [-filename-]:[-line-number-] &'; }
-            when 'emacs' { $emacs = 'editor.command.template   = emacs +[-line-number-]'; }
-            when 'vim'   { $vim   = 'editor.command.template   = vim +[-line-number-] [-filename-]'; }
-            default      { $nano  = 'editor.command.template   = nano +[-line-number-] "[-filename-]"'; }
+        %editors{'nano'}  = '# editor.command.template   = nano +[-line-number-] "[-filename-]"';
+        %editors{'atom'}  = '# editor.command.template   = atom [-filename-]:[-line-number-] &';
+        %editors{'code'}  = '# editor.command.template   = code -g [-filename-]:[-line-number-] &';
+        %editors{'subl'}  = '# editor.command.template   = subl [-filename-]:[-line-number-] &';
+        %editors{'emacs'} = '# editor.command.template   = emacs +[-line-number-]';
+        %editors{'vim'}   = '# editor.command.template   = vim +[-line-number-] [-filename-]';
+        
+        if (?%editors{%*ENV{'EDITOR'}}) {
+            %editors{%*ENV{'EDITOR'}} .= substr(2);
         }
-
-        $nano  = $nano  || '# editor.command.template   = nano +[-line-number-] "[-filename-]"';
-        $atom  = $atom  || '# editor.command.template   = atom [-filename-]:[-line-number-] &';
-        $code  = $code  || '# editor.command.template   = code -g [-filename-]:[-line-number-] &';
-        $subl  = $subl  || '# editor.command.template   = subl [-filename-]:[-line-number-] &';
-        $emacs = $emacs || '# editor.command.template   = emacs +[-line-number-]';
-        $vim   = $vim   || '# editor.command.template   = vim +[-line-number-] [-filename-]';
+        else {
+            %editors{'nano'} .= substr(2);
+		}
 
         # populate the default config file
         # HEREdocs can be indented! The CONFIG end marker provides the 
@@ -82,16 +74,9 @@ class JMP::Config {
         # uncomment or add your favourite text editor
         #--------------------------------------------------------------------
         
-        $nano
-        
-        # atom has Perl 6 syntax highlighting and other plugins for Perl 6
-        $atom
-        
-        $code
-        
-        $subl
-        $emacs
-        $vim
+        {
+            %editors.values.join("\n");
+        }
         
         #--------------------------------------------------------------------
         # uncomment or add your preferred code searching tool (below)

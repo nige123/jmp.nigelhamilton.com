@@ -70,6 +70,7 @@ class JMP::UI::Page {
 
         for @!hits -> $hit {
             $screen.current-grid.set-span-text(0, $current-line, $hit.render);
+            $screen.current-grid.set-span-color(0, $screen.columns, $current-line, 'default');
             $current-line++;
         }
     }

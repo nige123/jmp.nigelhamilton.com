@@ -55,17 +55,10 @@ class JMP::UI::Pager {
     }
 
     method edit-selected ($editor) {
-                
         my $hit = $!current-page.get-selected-hit;
-        $editor.edit-file($hit.file-path, $hit.line-number);
+        $hit.edit-file($editor);
+#        $editor.edit-file($hit.file-path, $hit.line-number);    
         $!current-page.display($!screen, $!current-page.cursor.at-line);
-    }
-
-    method exit-page {
-        $!screen.current-grid.disable;
-        $!screen.shutdown-screen;   # not ideal: https://github.com/ab5tract/Terminal-Print/issues/59
-        run('reset');               # patches welcome
-        exit;
     }
 
     method next {        

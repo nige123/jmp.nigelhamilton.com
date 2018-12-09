@@ -1,5 +1,5 @@
 # jmp.nigelhamilton.com
 
-jmp - search files and jump to matching lines in a text editor
+jmp - jump quickly to edit matching files
 
 ![](images/demo.gif?raw=true)

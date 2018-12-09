@@ -6,7 +6,7 @@ has 'bugs' => 1;
 
 sub show_bug {
     
-    say ";  # no closing quote
+    say "';  # mismatching quotes
 }
 
 Bug->new->show_bug;

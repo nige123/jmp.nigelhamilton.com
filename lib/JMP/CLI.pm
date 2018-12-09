@@ -61,6 +61,7 @@ multi sub MAIN ('to', *@search-terms) is export {
 
 #| jmp on files found in command output
 multi sub MAIN (*@command-args) is export {
-    my $command = @command-args.join(' ');    
+    my $command = @command-args.join(' ');
+    return USAGE() unless $command;
     $jmp.find-files-in-command-output('jmp ' ~ $command, $command);
 }

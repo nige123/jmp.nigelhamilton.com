@@ -1,0 +1,31 @@
+setting printing_status to printed for zorda id: 3111 at /home/s3/api.zorda.co/bin/../lib/Zorda/API/Order/Printer.pm line 80.
+saved printing status - printed for 3111 at /home/s3/api.zorda.co/bin/../lib/Zorda/API/Order/Printer.pm line 87.
+completed executing print job for  3111 at /home/s3/api.zorda.co/bin/../lib/Zorda/API.pm line 125.
+[Sun Dec  9 02:01:26 2018] [debug] Checking worker registry and job queue
+[Sun Dec  9 03:00:18 2018] [debug] Process 11697 is performing job "10441" with task "print_order"
+executing starting print job for 3112 at /home/s3/api.zorda.co/bin/../lib/Zorda/API.pm line 123.
+Loading pages (1/6)
+Counting pages (2/6)                                               
+Resolving links (4/6)                                                       
+Loading headers and footers (5/6)                                           
+Printing pages (6/6)
+Done                                                                      
+wkhtmltopdf filesize of results file: 787802 at /home/s3/api.zorda.co/bin/../lib/Zorda/API/Order/Printer.pm line 56.
+attaching file to form post /tmp/84oQ7pGPqt at /home/s3/api.zorda.co/bin/../lib/Zush/API/Client.pm line 224.
+attaching file /tmp/84oQ7pGPqt: PDF document, version 1.4
+FORM FIELDS === $VAR1 = {
+          'app_id' => 7,
+          'html_body' => '',
+          'attach_file' => {
+                             'file' => '/tmp/84oQ7pGPqt'
+                           },
+          'to' => 'back-office@hpeprint.com',
+          'subject' => 'Zorda print order #3112',
+          'from' => 'nige@print.do',
+          'text_body' => ''
+        };
+setting printing_status to printed for zorda id: 3112 at /home/s3/api.zorda.co/bin/../lib/Zorda/API/Order/Printer.pm line 80.
+saved printing status - printed for 3112 at /home/s3/api.zorda.co/bin/../lib/Zorda/API/Order/Printer.pm line 87.
+completed executing print job for  3112 at /home/s3/api.zorda.co/bin/../lib/Zorda/API.pm line 125.
+[Sun Dec  9 07:41:11 2018] [debug] Checking worker registry and job queue
+

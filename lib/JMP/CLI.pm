@@ -5,17 +5,29 @@ sub USAGE is export {
 
     say q:to"USAGE";
 
-    jmp - search files and jump to matching lines in a text editor
+    jmp - jump to files in your workflow
 
     Usage:
         
-        jmp config -- edit ~/.jmp config to set the editor and search commands 
-        jmp edit <filename> [<line-number>] -- start editing at a line number
-        jmp edit <filename> '[<search-terms> ...]' -- start editing at a matching line
-        jmp file '[<search-terms> ...]' -- find matching filenames   
-        jmp find '[<search-terms> ...]' -- find search terms within files    
+        jmp to '[<search-terms> ...]'               -- lines matching search terms in files
+
+        # jmp on files in command output. For example:
+        jmp locate README                           -- files in the filesystem
+        jmp tail /some.log                          -- files mentioned in log files
+        jmp ls                                      -- files in a directory
+        jmp find .                                  -- files returned from the find command
+        jmp git status                              -- files in git
+        jmp perl test.pl                            -- Perl output and errors
+        jmp perl6 test.pl                           -- Perl 6 output and errors
+
+        jmp config                                  -- edit ~/.jmp config to set the editor 
+                                                    -- and search commands 
+
+        jmp edit <filename> [<line-number>]         -- start editing at a line number
+        jmp edit <filename> '[<search-terms> ...]'  -- start editing at a matching line
 
     USAGE
+
 }
 
 my $jmp = JMP.new;
@@ -32,15 +44,24 @@ multi sub MAIN ('edit', $filename, Int $line-number = 0) is export {
 
 #| starting editing at a matching line
 multi sub MAIN ('edit', $filename, *@search-terms) is export {
-    $jmp.edit-file-at-matching-line($filename, @search-terms.join(' '));
+    my $search-terms = @search-terms.join(' ');
+    $jmp.edit-file-at-matching-line($filename, $search-terms);
 }
 
-#| find search terms in files
-multi sub MAIN ('find', *@search-terms) is export {
-    $jmp.search-in-files(@search-terms.join(' '));
+#| show this help
+multi sub MAIN ('help') is export {
+    USAGE();
 }
 
-#| find matching file names
-multi sub MAIN ('file', *@search-terms) is export {
-    $jmp.find-matching-filenames(@search-terms.join(' '));
+#| jmp to matching lines in files
+multi sub MAIN ('to', *@search-terms) is export {
+    my $search-terms = @search-terms.join(' ');
+    $jmp.search-in-files('jmp to ' ~ $search-terms, $search-terms);
+}
+
+#| jmp on files found in command output
+multi sub MAIN (*@command-args) is export {
+    my $command = @command-args.join(' ');
+    return USAGE() unless $command;
+    $jmp.find-files-in-command-output('jmp ' ~ $command, $command);
 }

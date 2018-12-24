@@ -3,7 +3,7 @@
 #
 # Nigel Hamilton (2016-Now) - Artistic Licence 2.0
 #
-# jmp - find matching files and jump into your $EDITOR
+# jmp - jump quickly to edit matching files
 #
 #--------------------------------------------------------------------------------
 
@@ -11,14 +11,12 @@ unit class JMP;
 
 use JMP::Config;
 use JMP::Editor;
-use JMP::File;
-use JMP::Find;
+use JMP::Finder;
 use JMP::UI;
 
 has JMP::Config $.config;
 has JMP::Editor $.editor;
-has JMP::Find   $.find;
-has JMP::File   $.file;
+has JMP::Finder $.finder;
 
 method edit-config { 
     $!editor.edit-file($!config.config-file);   
@@ -40,43 +38,36 @@ method edit-file-at-matching-line ($filename, $search-terms) {
     return $!editor.edit-file($filename, 1);    
 }
 
-method find-matching-filenames ($search-terms) {
+method find-files-in-command-output ($title, $command) {
 
-    # finish if nothing found?    
-    my @hits = self.file.find-matching-filenames($search-terms);
-
-    return unless @hits.elems;
-
-    # prepare to show a screenful of results
-    my $screen = JMP::UI.new(
-        title => 'jmp file ' ~ $search-terms, 
-        :@hits,
-        :$!editor,
-    );
-    $screen.display;
+    my @hits = self.finder.find-files-in-command-output($command);    
+    self.display-hits($title, @hits);
 
 }
 
-method search-in-files ($search-terms) {
+method search-in-files ($title, $search-terms) {
 
     # finish if nothing found?    
-    my @hits = self.find.find-in-files($search-terms);
-
-    return unless @hits.elems;
-
-    # prepare to show a screenful of results
-    my $screen = JMP::UI.new(
-        title => 'jmp find ' ~ $search-terms, 
-        :@hits,
-        :$!editor,
-    );
-    $screen.display;
+    my @hits = self.finder.find-in-files($search-terms);
+    self.display-hits($title, @hits);
 
 }
 
 submethod BUILD {
     $!config = JMP::Config.new;
     $!editor = JMP::Editor.new(:$!config);
-    $!file   = JMP::File.new(:$!config);
-    $!find   = JMP::Find.new(:$!config);
+    $!finder = JMP::Finder.new(:$!config);
+}
+
+submethod display-hits ($title, @hits) {
+
+    return unless @hits.elems;
+
+    # display the results
+    JMP::UI.new(
+        :$title, 
+        :@hits,
+        :$!editor,
+    ).display;
+
 }

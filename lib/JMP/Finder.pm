@@ -9,7 +9,7 @@ class JMP::Finder {
 
     #| search through multiple files
     method find-in-files ($search-terms) {
-        
+
         # search through multiple files
         my $find-command = $!config.get('find.command.template', { :$search-terms });
 
@@ -22,15 +22,15 @@ class JMP::Finder {
             my ($file-path, $line-number, $context) = $line.split(':', 3);
 
             next without $file-path and $line-number;
-                    
+
             if ($file-path ne $previous-file) {
                 @hits.push(JMP::File::Hit.new(:$file-path, context => $file-path));
                 $previous-file = $file-path;
-            }                
+            }
             # show the line number in the context
             @hits.push(JMP::File::Hit.new(
-                        :$file-path, 
-                        :$line-number, 
+                        :$file-path,
+                        :$line-number,
                         context => '    (' ~ $line-number ~ ') ' ~ $context
                       ));
         }
@@ -45,7 +45,7 @@ class JMP::Finder {
 
         # join STDOUT and STDERR
         my $result = join("\n", $shell-cmd.out.slurp, $shell-cmd.err.slurp);
-        
+
         # don't actually look for filenames just yet
         # do that lazily on demand by the user
         return $result.lines.map({ JMP::File::HitLater.new(context => $_) });

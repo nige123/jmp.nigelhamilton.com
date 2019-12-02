@@ -9,13 +9,13 @@ class JMP::UI::Page {
     our sub calculate-body-lines-per-page ($total-lines) is export {
         return $total-lines - ($header-height + $footer-height);
     }
-    
+
     has @.hits;
     has $.page-number;
     has $.title;
     has $.total-pages;
 
-    has $.cursor;          
+    has $.cursor;
 
     submethod TWEAK {
         $!cursor = JMP::UI::Cursor.new(
@@ -26,15 +26,15 @@ class JMP::UI::Page {
     }
 
     method display ($screen, $cursor-at-line = self.cursor.top-line) {
-        $screen.current-grid.clear;    
+        $screen.current-grid.clear;
         self.render-header($screen);
         self.render-hits($screen);
         self.render-footer($screen);
         self.cursor.render-at-line($screen, $cursor-at-line);
         print $screen;
     }
-        
-    submethod get-footer-actions { 
+
+    submethod get-footer-actions {
         return '                [E]dit      e[X]it            ' if $!page-number == 1 and $!total-pages == 1;
         return '                [E]dit      e[X]it      Next 🠊' if $!page-number == 1;
         return '🠈 Previous      [E]dit      e[X]it            ' if $!page-number == $!total-pages;
@@ -49,14 +49,14 @@ class JMP::UI::Page {
         return $!page-number == $!total-pages;
     }
 
-    submethod render-footer ($screen) {            
+    submethod render-footer ($screen) {
         self.render-line($screen, $screen.rows - 2);
         my $actions      = self.get-footer-actions;
         my $left-padding = ' ' x ($screen.columns - $actions.chars) div 2;
         $screen.current-grid.set-span-text(0, $screen.rows - 1, $left-padding ~ $actions);
     }
 
-    submethod render-header ($screen) {            
+    submethod render-header ($screen) {
         # render the header
         $screen.current-grid.set-span-text(0, 0, $!title);
         my $page-caption = 'Page ' ~ $!page-number ~ ' of ' ~ $!total-pages;
@@ -64,7 +64,7 @@ class JMP::UI::Page {
         self.render-line($screen, 1);
     }
 
-    submethod render-hits ($screen) {        
+    submethod render-hits ($screen) {
         # start at the top cursor line position
         my $current-line = $!cursor.top-line;
 
@@ -76,7 +76,7 @@ class JMP::UI::Page {
     }
 
     submethod render-line ($screen, $at-line) {
-        $screen.current-grid.set-span-text(0, $at-line, '─' x $screen.columns);        
+        $screen.current-grid.set-span-text(0, $at-line, '─' x $screen.columns);
     }
 
     method get-selected-hit {

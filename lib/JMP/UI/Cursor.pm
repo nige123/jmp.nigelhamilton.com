@@ -1,9 +1,9 @@
 
 class JMP::UI::Cursor {
 
-    has $.at-line;          
+    has $.at-line;
     has $.bottom-line;
-    has $.top-line;          
+    has $.top-line;
 
     method at-bottom {
         return $!at-line == $!bottom-line;

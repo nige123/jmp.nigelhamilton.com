@@ -1,13 +1,13 @@
-#use v6.d.PREVIEW;
+
 use Terminal::Print;
 use Terminal::Print::DecodedInput;
 use JMP::UI::Pager;
 
 class JMP::UI {
-        
+
     has $.title     is required;
     has $.editor    is required;
-    has @.hits      is required;    
+    has @.hits      is required;
 
     has $.pager;
     has $.screen = Terminal::Print.new;
@@ -21,7 +21,7 @@ class JMP::UI {
                         hits    =>  @!hits,
                   );
     }
-    
+
     method display {
 
         self.pager.display-page;

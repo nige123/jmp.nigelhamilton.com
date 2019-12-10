@@ -37,6 +37,11 @@ class JMP::File::HitLater is JMP::File::Hit {
                 proceed unless self.found-file-path($/[0], $/[1]);
             }           
 
+            # matches Perl 6 error output (e.g., at /Some/Module.pm (Some::Module) line 12)
+            when /at \s (<-[\s:]>+) '(' \S+ ') line ' (\d+)/ {
+                proceed unless self.found-file-path($/[0], $/[1]);
+            }           
+
             # more file finding patterns HERE - PR's welcome?
 
             # go through each token

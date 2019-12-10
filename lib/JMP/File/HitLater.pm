@@ -4,8 +4,8 @@ class JMP::File::HitLater is JMP::File::Hit {
 
     method edit-file ($editor) {
 
-        # jmp straight to the editor if the file-path is already set                     
-        return $editor.edit-file(self.file-path, self.line-number)    
+        # jmp straight to the editor if the file-path is already set
+        return $editor.edit-file(self.file-path, self.line-number)
             with self.file-path;
 
         # look for something to edit
@@ -15,27 +15,27 @@ class JMP::File::HitLater is JMP::File::Hit {
 
         # we found something to edit - call the editor
         return $editor.edit-file(self.file-path, self.line-number);
-            
+
     }
 
     submethod find-file-path {
-    
+
         given self.context {
 
             # matches Perl 5 error output (e.g., at SomePerl.pl line 12)
             when /at \s (\S+) \s line \s (\d+)/ {
                 proceed unless self.found-file-path($/[0], $/[1]);
             }
-            
-            # matches Perl 6 error output (e.g., at SomePerl6.p6:12)
+
+            # matches Raku (Perl 6) error output (e.g., at SomePerl6.p6:12)
             when /at \s (<-[\s:]>+) ':' (\d+)/ {
                 proceed unless self.found-file-path($/[0], $/[1]);
-            }           
+            }
 
-            # matches Perl 6 error output (e.g., SomePerl6.p6 (Some::Perl6):12)
+            # matches Raku (Perl 6) error output (e.g., SomePerl6.p6 (Some::Perl6):12)
             when /at \s (<-[\s:]>+) '(' \S+ ')' ':' (\d+)/ {
                 proceed unless self.found-file-path($/[0], $/[1]);
-            }           
+            }
 
             # matches Perl 6 error output (e.g., at /Some/Module.pm (Some::Module) line 12)
             when /at \s (<-[\s:]>+) '(' \S+ ') line ' (\d+)/ {
@@ -48,14 +48,14 @@ class JMP::File::HitLater is JMP::File::Hit {
             default {
                 for self.context.words -> $token {
                     # keep trying to set the file path
-                    proceed if self.found-file-path($token);                    
+                    proceed if self.found-file-path($token);
                 }
             }
         }
     }
 
     submethod found-file-path ($file-path, $line-number = 1) {
-        
+
         # look for live files
         return False unless $file-path.IO.f and $file-path.IO.e;
         self.file-path = $file-path;

@@ -8,7 +8,7 @@ sub USAGE is export {
     jmp - jump to files in your workflow
 
     Usage:
-        
+
         jmp to '[<search-terms> ...]'               -- lines matching search terms in files
 
         # jmp on files in command output. For example:
@@ -18,10 +18,10 @@ sub USAGE is export {
         jmp find .                                  -- files returned from the find command
         jmp git status                              -- files in git
         jmp perl test.pl                            -- Perl output and errors
-        jmp perl6 test.pl                           -- Perl 6 output and errors
+        jmp raku test.pl                            -- Raku output and errors
 
-        jmp config                                  -- edit ~/.jmp config to set the editor 
-                                                    -- and search commands 
+        jmp config                                  -- edit ~/.jmp config to set the editor
+                                                    -- and search commands
 
         jmp edit <filename> [<line-number>]         -- start editing at a line number
         jmp edit <filename> '[<search-terms> ...]'  -- start editing at a matching line
@@ -33,7 +33,7 @@ sub USAGE is export {
 my $jmp = JMP.new;
 
 #| edit the ~/.jmp config to set the editor and search commands
-multi sub MAIN ('config') is export { 
+multi sub MAIN ('config') is export {
     $jmp.edit-config;
 }
 
@@ -65,3 +65,4 @@ multi sub MAIN (*@command-args) is export {
     return USAGE() unless $command;
     $jmp.find-files-in-command-output('jmp ' ~ $command, $command);
 }
+

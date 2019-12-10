@@ -18,8 +18,8 @@ has JMP::Config $.config;
 has JMP::Editor $.editor;
 has JMP::Finder $.finder;
 
-method edit-config { 
-    $!editor.edit-file($!config.config-file);   
+method edit-config {
+    $!editor.edit-file($!config.config-file);
 }
 
 method edit-file ($filename, $line-number = 1) {
@@ -34,20 +34,20 @@ method edit-file-at-matching-line ($filename, $search-terms) {
             return $!editor.edit-file($filename, $current-line);
         }
     }
-    # nothing matched - open at the first line        
-    return $!editor.edit-file($filename, 1);    
+    # nothing matched - open at the first line
+    return $!editor.edit-file($filename, 1);
 }
 
 method find-files-in-command-output ($title, $command) {
 
-    my @hits = self.finder.find-files-in-command-output($command);    
+    my @hits = self.finder.find-files-in-command-output($command);
     self.display-hits($title, @hits);
 
 }
 
 method search-in-files ($title, $search-terms) {
 
-    # finish if nothing found?    
+    # finish if nothing found?
     my @hits = self.finder.find-in-files($search-terms);
     self.display-hits($title, @hits);
 
@@ -65,7 +65,7 @@ submethod display-hits ($title, @hits) {
 
     # display the results
     JMP::UI.new(
-        :$title, 
+        :$title,
         :@hits,
         :$!editor,
     ).display;

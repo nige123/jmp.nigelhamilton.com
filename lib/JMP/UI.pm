@@ -1,13 +1,13 @@
-#use v6.d.PREVIEW;
+
 use Terminal::Print;
 use Terminal::Print::DecodedInput;
 use JMP::UI::Pager;
 
 class JMP::UI {
-        
+
     has $.title     is required;
     has $.editor    is required;
-    has @.hits      is required;    
+    has @.hits      is required;
 
     has $.pager;
     has $.screen = Terminal::Print.new;
@@ -21,7 +21,7 @@ class JMP::UI {
                         hits    =>  @!hits,
                   );
     }
-    
+
     method display {
 
         self.pager.display-page;
@@ -30,13 +30,13 @@ class JMP::UI {
 
         react {
             whenever $input -> $_ {
-                when 'CursorUp'                         {   self.pager.cursor-up;               }
-                when 'CursorDown'                       {   self.pager.cursor-down;             }
-                when 'CursorRight' | 'PageDown' | ' '   {   self.pager.next;                    }
-                when 'CursorLeft'  | 'PageUp'           {   self.pager.previous;                }
-                when 'e' | 'E'                          {   self.pager.edit-selected($!editor); }
-                when $_ ~~ Str and $_.ord == 13         {   self.pager.edit-selected($!editor); }
-                when 'x' | 'X' | 'q' | 'Q'              {   $!screen.shutdown-screen; done;     }
+                when 'CursorUp'    | 'k'                    { self.pager.cursor-up;               }
+                when 'CursorDown'  | 'j'                    { self.pager.cursor-down;             }
+                when 'CursorRight' | 'l' | 'PageDown' | ' ' { self.pager.next;                    }
+                when 'CursorLeft'  | 'h' | 'PageUp'         { self.pager.previous;                }
+                when 'e' | 'E'                              { self.pager.edit-selected($!editor); }
+                when $_ ~~ Str and $_.ord == 13             { self.pager.edit-selected($!editor); }
+                when 'x' | 'X' | 'q' | 'Q'                  { $!screen.shutdown-screen; done;     }
             }
         }
     }

@@ -13,7 +13,7 @@ Usage:
     jmp find .                                  -- files returned from the find command
     jmp git status                              -- files in git
     jmp perl test.pl                            -- Perl output and errors
-    jmp perl6 test.pl                           -- Perl 6 output and errors
+    jmp raku test.pl                            -- Raku (Perl 6) output and errors
 
     jmp config                                  -- edit ~/.jmp config to set the editor 
                                                 -- and search commands 

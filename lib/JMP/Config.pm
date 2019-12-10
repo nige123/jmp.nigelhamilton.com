@@ -37,7 +37,7 @@ class JMP::Config {
 
             # save the key and value in config
             # $0 and $1 refer to the match objects in the regex
-            # ~$0 stringifies the match object 
+            # ~$0 stringifies the match object
             # trim removes leading and trailing whitespace
             %fields{~$0.trim} = ~$1.trim;
 
@@ -50,41 +50,51 @@ class JMP::Config {
     submethod populate-default-config-file {
 
         # populate the default config file
-        # HEREdocs can be indented! The CONFIG end marker provides the 
-        # indentation level 
+        # HEREdocs can be indented! The CONFIG end marker provides the
+        # indentation level
         # .IO provides simple methods for slurping/spurting files to disk
         $!config-file.IO.spurt(q:to"CONFIG");
-        
+
         #--------------------------------------------------------------------
         # uncomment or add your favourite text editor
         #--------------------------------------------------------------------
-        
+
         editor.command.template   = nano +[-line-number-] "[-filename-]"
-        
-        # atom has Perl 6 syntax highlighting and other plugins for Perl 6
+
+        # atom has Raku (Perl 6) syntax highlighting and other plugins for Raku
         # editor.command.template   = atom [-filename-]:[-line-number-] &
-        
+
         # editor.command.template   = code -g [-filename-]:[-line-number-] &
-        
+
         # editor.command.template   = subl [-filename-]:[-line-number-] &
         # editor.command.template   = emacs +[-line-number-]
         # editor.command.template   = vim +[-line-number-] [-filename-]
-        
+
         #--------------------------------------------------------------------
         # uncomment or add your preferred code searching tool (below)
         #--------------------------------------------------------------------
-        
+
         # classic recursive grep
         find.command.template       = grep -rHn '[-search-terms-]'
-        
+
         # ag - the silver searcher for generic fast file searching
         # find.command.template     = ag --nogroup '[-search-terms-]'
-        
+
         # git grep - for fast search of git repositories
         # find.command.template     = git grep --full-name --untracked --text --line-number -e '[-search-terms-]'
-        
+
         # App::Ack - Perl-powered improvement to grep
         # find.command.template     = ack --nogroup '[-search-terms-]'
+
+        #--------------------------------------------------------------------
+        # uncomment or add your preferred browser launch command
+        #--------------------------------------------------------------------
+
+        # open a browser at a URL
+        browser.command.template       = elinks '[-url-]'
+
+		# open the default browser on Mac OS
+        browser.command.template       = open '[-url-]'
 
         CONFIG
 
@@ -95,11 +105,11 @@ class JMP::Config {
         $!config-file = $*HOME.add('.jmp').path;
 
         # .IO is handy for IO operations
-        # populate the config if the file does not exist 
-        self.populate-default-config-file 
+        # populate the config if the file does not exist
+        self.populate-default-config-file
             unless $!config-file.IO.e;
 
-        # to a private hash variable %! 
+        # to a private hash variable %!
         %!fields = self.parse-config-file;
 
     }

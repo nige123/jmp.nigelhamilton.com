@@ -12,60 +12,59 @@ unit class JMP;
 use JMP::Config;
 use JMP::Editor;
 use JMP::Finder;
+use JMP::Memory;
 use JMP::UI;
 
 has JMP::Config $.config;
 has JMP::Editor $.editor;
 has JMP::Finder $.finder;
+has JMP::Memory $.memory;
+
+has $.command;
 
 method edit-config {
     $!editor.edit-file($!config.config-file);
 }
 
 method edit-file ($filename, $line-number = 1) {
-    $!editor.edit-file($filename, $line-number);
+    my $hit = self.finder.find-line-in-file($filename, $line-number);
+    return $!editor.edit($.command, $hit);
 }
 
 method edit-file-at-matching-line ($filename, $search-terms) {
-    my $current-line = 0;
-    for $filename.IO.lines -> $line {
-        $current-line++;
-        if $line.contains($search-terms) {
-            return $!editor.edit-file($filename, $current-line);
-        }
-    }
-    # nothing matched - open at the first line
-    return $!editor.edit-file($filename, 1);
+    my $hit = self.finder.find-matching-line-in-file($filename, $search-terms);
+    return $!editor.edit($.command, $hit);
 }
 
-method find-files-in-command-output ($title, $command) {
-
-    my @hits = self.finder.find-files-in-command-output($command);
-    self.display-hits($title, @hits);
-
+method find-files-in-command-output ($sub-command) {
+    my @hits = self.finder.find-files-in-command-output($sub-command);
+    self.display-hits(@hits);
 }
 
-method search-in-files ($title, $search-terms) {
-
-    # finish if nothing found?
+method search-in-files ($search-terms) {
     my @hits = self.finder.find-in-files($search-terms);
-    self.display-hits($title, @hits);
-
+    self.display-hits(@hits);
 }
 
-submethod BUILD {
+method recent-jmps ($last-n-entries) {
+    my @hits = self.memory.get-recent-jmps($last-n-entries);
+    self.display-hits(@hits);
+}
+
+submethod TWEAK {
     $!config = JMP::Config.new;
-    $!editor = JMP::Editor.new(:$!config);
+    $!memory = JMP::Memory.new;
+    $!editor = JMP::Editor.new(:$!config, :$!memory);
     $!finder = JMP::Finder.new(:$!config);
 }
 
-submethod display-hits ($title, @hits) {
+submethod display-hits (@hits) {
 
     return unless @hits.elems;
 
     # display the results
     JMP::UI.new(
-        :$title,
+        title => self.command,
         :@hits,
         :$!editor,
     ).display;

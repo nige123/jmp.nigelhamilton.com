@@ -17,14 +17,6 @@ class JMP::UI::Page {
 
     has $.cursor;
 
-    submethod TWEAK {
-        $!cursor = JMP::UI::Cursor.new(
-                        at-line     => $header-height,
-                        top-line    => $header-height,
-                        bottom-line => ($header-height + @!hits.elems) - 1,
-                    );
-    }
-
     method display ($screen, $cursor-at-line = self.cursor.top-line) {
         $screen.current-grid.clear;
         self.render-header($screen);
@@ -34,11 +26,8 @@ class JMP::UI::Page {
         print $screen;
     }
 
-    submethod get-footer-actions {
-        return '                [E]dit      e[X]it            ' if $!page-number == 1 and $!total-pages == 1;
-        return '                [E]dit      e[X]it      Next 🠊' if $!page-number == 1;
-        return '🠈 Previous      [E]dit      e[X]it            ' if $!page-number == $!total-pages;
-        return '🠈 Previous      [E]dit      e[X]it      Next 🠊';
+    method get-selected-hit {
+        return @!hits[self.cursor.at-line - self.cursor.top-line];
     }
 
     method is-first-page {
@@ -47,6 +36,13 @@ class JMP::UI::Page {
 
     method is-last-page {
         return $!page-number == $!total-pages;
+    }
+
+    submethod get-footer-actions {
+        return '                [E]dit      e[X]it            ' if $!page-number == 1 and $!total-pages == 1;
+        return '                [E]dit      e[X]it      Next 🠊' if $!page-number == 1;
+        return '🠈 Previous      [E]dit      e[X]it            ' if $!page-number == $!total-pages;
+        return '🠈 Previous      [E]dit      e[X]it      Next 🠊';
     }
 
     submethod render-footer ($screen) {
@@ -79,8 +75,12 @@ class JMP::UI::Page {
         $screen.current-grid.set-span-text(0, $at-line, '─' x $screen.columns);
     }
 
-    method get-selected-hit {
-        return @!hits[self.cursor.at-line - self.cursor.top-line];
+    submethod TWEAK {
+        $!cursor = JMP::UI::Cursor.new(
+                        at-line     => $header-height,
+                        top-line    => $header-height,
+                        bottom-line => ($header-height + @!hits.elems) - 1,
+                    );
     }
 
 }

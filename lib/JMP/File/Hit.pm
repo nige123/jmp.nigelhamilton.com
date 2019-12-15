@@ -1,22 +1,22 @@
 
 class JMP::File::Hit {
 
-    has $.context     is rw;
-    has $.file-path   is rw;
-    has $.line-number is rw = 1;
-
-    method edit-file ($editor) {
-        $editor.edit-file($!file-path, $!line-number);
-    }
+    has $.matching-text     is rw = '';     # the line of text that was matched
+    has $.file-path         is rw;
+    has $.full-path         is rw;
+    has $.line-number       is rw = 1;
 
     method render {
-        return $!context;
+        return '    (' ~ $!line-number ~ ') ' ~ $!matching-text
+            if $!matching-text.chars > 0;
+        return $!file-path;
     }
 
     submethod TWEAK {
-    
-        # substitute tabs for 4 spaces
-        $!context = $!context.subst("\t", ' ' x 4, :g);
-
+        # substitute tabs for 4 spaces    
+        $!matching-text = $!matching-text.subst("\t", ' ' x 4, :g);
+        with $!file-path { 
+            $!full-path     = $!file-path.IO.absolute;
+        }
     }
 }

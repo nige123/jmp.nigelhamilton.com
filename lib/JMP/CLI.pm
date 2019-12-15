@@ -9,6 +9,7 @@ sub USAGE is export {
 
     Usage:
 
+        jmp                                         -- show most recent
         jmp to '[<search-terms> ...]'               -- lines matching search terms in files
 
         # jmp on files in command output. For example:
@@ -18,10 +19,11 @@ sub USAGE is export {
         jmp find .                                  -- files returned from the find command
         jmp git status                              -- files in git
         jmp perl test.pl                            -- Perl output and errors
-        jmp raku test.pl                            -- Raku output and errors
+        jmp raku test.raku                          -- Raku output and errors
 
         jmp config                                  -- edit ~/.jmp config to set the editor
                                                     -- and search commands
+        jmp help                                    -- show this help
 
         jmp edit <filename> [<line-number>]         -- start editing at a line number
         jmp edit <filename> '[<search-terms> ...]'  -- start editing at a matching line
@@ -30,7 +32,12 @@ sub USAGE is export {
 
 }
 
-my $jmp = JMP.new;
+my $jmp = JMP.new(command => 'jmp ' ~ join(' ', @*ARGS));
+
+#| show recent jmps
+multi sub MAIN ('back', $last-n-jmps = 100) is export {
+    $jmp.recent-jmps($last-n-jmps);
+}
 
 #| edit the ~/.jmp config to set the editor and search commands
 multi sub MAIN ('config') is export {
@@ -56,13 +63,17 @@ multi sub MAIN ('help') is export {
 #| jmp to matching lines in files
 multi sub MAIN ('to', *@search-terms) is export {
     my $search-terms = @search-terms.join(' ');
-    $jmp.search-in-files('jmp to ' ~ $search-terms, $search-terms);
+    $jmp.search-in-files($search-terms);
 }
 
 #| jmp on files found in command output
 multi sub MAIN (*@command-args) is export {
     my $command = @command-args.join(' ');
-    return USAGE() unless $command;
-    $jmp.find-files-in-command-output('jmp ' ~ $command, $command);
+    if $command {
+        $jmp.find-files-in-command-output($command);
+    }
+    else {
+        # default to showing the jmp history
+        MAIN('back');
+    }
 }
-

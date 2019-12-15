@@ -10,7 +10,7 @@
 #       jmp config -- edit ~/.jmp config to set the editor and search commands 
 #       jmp edit <filename> [<line-number>] -- start editing at a line number
 #       jmp edit <filename> '[<search-terms> ...]' -- start editing at a matching line
-#       jmp find '[<search-terms> ...]' -- find search terms in files  
+#       jmp to '[<search-terms> ...]' -- find search terms in files  
 #
 #--------------------------------------------------------------------------------
 

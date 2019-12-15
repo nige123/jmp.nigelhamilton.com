@@ -7,6 +7,40 @@ class JMP::Finder {
 
     has $.config;
 
+    #| go to a specific line number in a file
+    method find-line-in-file ($filename, $line-number) {
+
+        return JMP::File::Hit.new(
+                    file-path   => $filename, 
+                    line-number => $line-number, 
+                );
+
+    }
+
+    #| look for the first matching line in a file
+    method find-matching-line-in-file ($filename, $searchterms) {
+
+        my $hit = JMP::File::Hit.new(
+                    file-path   => $filename, 
+                    line-number => 1, 
+                );
+
+        my $first-matching-line = 0;
+
+        # look through the file for matching lines        
+        for $filename.IO.lines -> $line {
+            $first-matching-line++;
+            next unless $line.contains($searchterms);
+            # found a matching line - remember it
+            $hit.line-number = $first-matching-line;
+            $hit.matching-text = $line;
+            last;
+        }
+
+        return $hit;
+
+    }
+
     #| search through multiple files
     method find-in-files ($search-terms) {
 
@@ -19,19 +53,19 @@ class JMP::Finder {
 
         for qqx{$find-command}.lines -> $line {
 
-            my ($file-path, $line-number, $context) = $line.split(':', 3);
-
+            my ($file-path, $line-number, $matching-text) = $line.split(':', 3);
+                    
             next without $file-path and $line-number;
 
             if ($file-path ne $previous-file) {
-                @hits.push(JMP::File::Hit.new(:$file-path, context => $file-path));
+                @hits.push(JMP::File::Hit.new(:$file-path));
                 $previous-file = $file-path;
             }
             # show the line number in the context
             @hits.push(JMP::File::Hit.new(
                         :$file-path,
                         :$line-number,
-                        context => '    (' ~ $line-number ~ ') ' ~ $context
+                        :$matching-text,
                       ));
         }
         return @hits;
@@ -48,7 +82,9 @@ class JMP::Finder {
 
         # don't actually look for filenames just yet
         # do that lazily on demand by the user
-        return $result.lines.map({ JMP::File::HitLater.new(context => $_) });
+        return $result.lines.map({ 
+                    JMP::File::HitLater.new(text-to-match => $_) 
+                });
 
     }
 

@@ -3,7 +3,8 @@
 jmp - jump to files in your workflow
 
 Usage:
-    
+
+    jmp                                         -- show most recent
     jmp to '[<search-terms> ...]'               -- lines matching search terms in files
 
     # jmp on files in command output. For example:
@@ -13,10 +14,11 @@ Usage:
     jmp find .                                  -- files returned from the find command
     jmp git status                              -- files in git
     jmp perl test.pl                            -- Perl output and errors
-    jmp raku test.pl                            -- Raku (Perl 6) output and errors
+    jmp raku test.raku                          -- Raku output and errors
 
-    jmp config                                  -- edit ~/.jmp config to set the editor 
-                                                -- and search commands 
+    jmp config                                  -- edit ~/.jmp config to set the editor
+                                                -- and search commands
+    jmp help                                    -- show this help
 
     jmp edit <filename> [<line-number>]         -- start editing at a line number
     jmp edit <filename> '[<search-terms> ...]'  -- start editing at a matching line

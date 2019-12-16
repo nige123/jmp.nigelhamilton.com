@@ -45,7 +45,8 @@ class JMP::UI::Pager {
         return if $hit.isa('JMP::Memory::Command');
 
         if $hit.isa('JMP::File::HitLater') {
-            $hit.find-file-path;     
+            $hit.find-file-path;  
+            return without $hit.file-path;
         }
 
         return unless $hit.file-path.IO ~~ :e;

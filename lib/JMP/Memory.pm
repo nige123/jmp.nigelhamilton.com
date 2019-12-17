@@ -35,8 +35,8 @@ class JMP::Memory {
         # and the selected destination
         my %hit-record = %( 
             line-number         =>  $hit.line-number,
-            file-path           =>  $hit.file-path,
-            full-path           =>  $hit.full-path,
+            relative-path       =>  $hit.relative-path,
+            absolute-path       =>  $hit.absolute-path,
             matching-text       =>  $hit.matching-text,
         );
 

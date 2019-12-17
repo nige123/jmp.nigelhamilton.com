@@ -46,10 +46,8 @@ class JMP::UI::Pager {
 
         if $hit.isa('JMP::File::HitLater') {
             $hit.find-file-path;  
-            return without $hit.file-path;
+            return unless $hit.file-exists;
         }
-
-        return unless $hit.file-path.IO ~~ :e;
 
         # if it's a command - then execute it?
         $editor.edit($!title, $hit);

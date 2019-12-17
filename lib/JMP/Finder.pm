@@ -11,8 +11,9 @@ class JMP::Finder {
     method find-line-in-file ($filename, $line-number) {
 
         return JMP::File::Hit.new(
-                    file-path   => $filename, 
-                    line-number => $line-number, 
+                    relative-path   => $filename,
+                    absolute-path   => $filename.IO.absolute, 
+                    line-number     => $line-number, 
                 );
 
     }
@@ -21,8 +22,9 @@ class JMP::Finder {
     method find-matching-line-in-file ($filename, $searchterms) {
 
         my $hit = JMP::File::Hit.new(
-                    file-path   => $filename, 
-                    line-number => 1, 
+                    relative-path   => $filename, 
+                    absolute-path   => $filename.IO.absolute, 
+                    line-number     => 1, 
                 );
 
         my $first-matching-line = 0;
@@ -58,15 +60,23 @@ class JMP::Finder {
             next without $file-path and $line-number;
 
             if ($file-path ne $previous-file) {
-                @hits.push(JMP::File::Hit.new(:$file-path));
+                @hits.push(
+                    JMP::File::Hit.new(
+                        relative-path => $file-path,
+                        absolute-path => $file-path.IO.absolute,
+                    )
+                );
                 $previous-file = $file-path;
             }
             # show the line number in the context
-            @hits.push(JMP::File::Hit.new(
-                        :$file-path,
-                        :$line-number,
-                        :$matching-text,
-                      ));
+            @hits.push(
+                JMP::File::Hit.new(
+                    relative-path => $file-path,
+                    absolute-path => $file-path.IO.absolute,
+                    :$line-number,
+                    :$matching-text,
+                )
+            );
         }
         return @hits;
     }

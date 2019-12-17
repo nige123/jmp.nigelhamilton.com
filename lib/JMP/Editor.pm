@@ -10,8 +10,8 @@ class JMP::Editor {
     #| following a jmp hit, open at a file location and remember the action 
     method edit ($jmp-command, JMP::File::Hit $hit) {
         
-        return without $hit.full-path;
-        self.edit-at-line($hit.full-path, $hit.line-number);
+        return unless $hit.file-exists;
+        self.edit-at-line($hit.absolute-path, $hit.line-number);
         $!memory.save($jmp-command, $hit);
 
     }

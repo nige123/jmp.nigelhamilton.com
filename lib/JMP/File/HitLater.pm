@@ -6,7 +6,7 @@ class JMP::File::HitLater is JMP::File::Hit {
 
     method find-file-path {
 
-        return if defined self.full-path;
+        return if self.file-exists;
 
         given self.text-to-match {
 
@@ -52,8 +52,8 @@ class JMP::File::HitLater is JMP::File::Hit {
         return False unless $file-path.IO.f and $file-path.IO.e;
 
         # capture the location
-        self.file-path      = $file-path;
-        self.full-path      = $file-path.IO.absolute;
+        self.relative-path  = $file-path;
+        self.absolute-path  = $file-path.IO.absolute;
         self.line-number    = $line-number;
         self.matching-text  = self.text-to-match;
         

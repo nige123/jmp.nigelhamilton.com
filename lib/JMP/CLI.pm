@@ -55,6 +55,11 @@ multi sub MAIN ('edit', $filename, *@search-terms) is export {
     $jmp.edit-file-at-matching-line($filename, $search-terms);
 }
 
+#| show the current version
+multi sub MAIN ('version') is export {
+    say 'jmp - version 7';
+}
+
 #| show this help
 multi sub MAIN ('help') is export {
     USAGE();

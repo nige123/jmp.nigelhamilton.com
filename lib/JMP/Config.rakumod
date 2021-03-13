@@ -61,7 +61,7 @@ class JMP::Config {
 
         editor.command.template   = nano +[-line-number-] "[-filename-]"
 
-        # atom has Raku (Perl 6) syntax highlighting and other plugins for Raku
+        # atom has Raku syntax highlighting and other plugins for Raku
         # editor.command.template   = atom [-filename-]:[-line-number-] &
 
         # editor.command.template   = code -g [-filename-]:[-line-number-] &

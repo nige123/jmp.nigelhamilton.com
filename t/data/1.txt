@@ -1,0 +1,5 @@
+===SORRY!=== Error while compiling /home/s3/app.123.do/lib/Do/Timeline.pm (Do::Timeline)
+Attribute $!editor not declared in class Do::Timeline
+at /home/s3/app.123.do/lib/Do/Timeline.pm (Do::Timeline):87
+------> <BOL>⏏<EOL>
+

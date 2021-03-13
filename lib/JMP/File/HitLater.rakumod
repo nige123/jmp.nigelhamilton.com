@@ -15,17 +15,17 @@ class JMP::File::HitLater is JMP::File::Hit {
                 proceed unless self.found-file-path($/[0], $/[1]);
             }
 
-            # matches Raku (Perl 6) error output (e.g., at SomePerl6.p6:12)
+            # matches Raku error output (e.g., at SomeRaku.raku:12)
             when /at \s (<-[\s:]>+) ':' (\d+)/ {
                 proceed unless self.found-file-path($/[0], $/[1]);
             }
 
-            # matches Raku (Perl 6) error output (e.g., SomePerl6.p6 (Some::Perl6):12)
+            # matches Raku error output (e.g., SomeRaku.raku (Some::Raku):12)
             when /at \s (<-[\s:]>+) '(' \S+ ')' ':' (\d+)/ {
                 proceed unless self.found-file-path($/[0], $/[1]);
             }
 
-            # matches Raku (Perl 6) error output (e.g., at /Some/Module.pm (Some::Module) line 12)
+            # matches Raku error output (e.g., at /Some/Module.rakumod (Some::Module) line 12)
             when /at \s (<-[\s:]>+) '(' \S+ ') line ' (\d+)/ {
                 proceed unless self.found-file-path($/[0], $/[1]);
             }           

@@ -57,7 +57,7 @@ multi sub MAIN ('edit', $filename, *@search-terms) is export {
 
 #| show the current version
 multi sub MAIN ('version') is export {
-    say 'jmp - version 9';
+    say 'jmp - version 10';
 }
 
 #| show this help

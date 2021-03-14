@@ -42,7 +42,7 @@ class JMP::UI::Page {
         return '                [E]dit      e[X]it            ' if $!page-number == 1 and $!total-pages == 1;
         return '                [E]dit      e[X]it      Next >' if $!page-number == 1;
         return '< Previous      [E]dit      e[X]it            ' if $!page-number == $!total-pages;
-        return '< Previous      [E]dit      e[X]it      Next >;
+        return '< Previous      [E]dit      e[X]it      Next >';
     }
 
     submethod render-footer ($screen) {

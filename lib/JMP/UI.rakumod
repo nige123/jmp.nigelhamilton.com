@@ -30,8 +30,8 @@ class JMP::UI {
 
         react {
             whenever $input -> $_ {
-                when 'CursorUp'    | 'k'                    { self.pager.cursor-up;               }
-                when 'CursorDown'  | 'j'                    { self.pager.cursor-down;             }
+                when 'CursorUp'    | 'k'                    { self.pager.cursor-up;   sleep 0.02; }
+                when 'CursorDown'  | 'j'                    { self.pager.cursor-down; sleep 0.02; }
                 when 'CursorRight' | 'l' | 'PageDown' | ' ' { self.pager.next;                    }
                 when 'CursorLeft'  | 'h' | 'PageUp'         { self.pager.previous;                }
                 when 'e' | 'E'                              { self.pager.edit-selected($!editor); }

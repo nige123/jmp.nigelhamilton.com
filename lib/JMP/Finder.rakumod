@@ -53,7 +53,8 @@ class JMP::Finder {
 
         my $previous-file = '';
 
-        for qqx{$find-command}.lines -> $line {
+        my $proc = run '/bin/sh', '-c', $find-command, :out;
+        for $proc.out.lines(:enc('utf8-c8')) -> $line {
 
             my ($file-path, $line-number, $matching-text) = $line.split(':', 3);
                     

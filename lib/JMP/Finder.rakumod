@@ -7,6 +7,11 @@ class JMP::Finder {
 
     has $.config;
 
+    method !parse-find-output-line ($line) {
+        return unless $line ~~ /^(.*) ':' (\d+) ':' (.*)$/;
+        return (~$0, +$1, ~$2);
+    }
+
     #| go to a specific line number in a file
     method find-line-in-file ($filename, $line-number) {
 
@@ -56,9 +61,8 @@ class JMP::Finder {
         my $proc = run '/bin/sh', '-c', $find-command, :out;
         for $proc.out.lines(:enc('utf8-c8')) -> $line {
 
-            my ($file-path, $line-number, $matching-text) = $line.split(':', 3);
-                    
-            next without $file-path and $line-number;
+            my ($file-path, $line-number, $matching-text) = self!parse-find-output-line($line);
+            next unless $file-path.defined;
 
             if ($file-path ne $previous-file) {
                 @hits.push(

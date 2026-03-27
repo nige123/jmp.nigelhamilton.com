@@ -74,8 +74,8 @@ class JMP::Config {
         # uncomment or add your preferred code searching tool (below)
         #--------------------------------------------------------------------
 
-        # classic recursive grep
-        find.command.template       = grep -rHn '[-search-terms-]'
+        # ripgrep - fast recursive search with stable file:line:text output
+        find.command.template       = rg --line-number --with-filename --no-heading --color never '[-search-terms-]'
 
         # ag - the silver searcher for generic fast file searching
         # find.command.template     = ag --nogroup '[-search-terms-]'

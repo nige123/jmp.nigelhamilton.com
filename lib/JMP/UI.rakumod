@@ -23,19 +23,20 @@ class JMP::UI {
     }
 
     method pane-heights-for-rows (Int $rows) {
+        my $title-lines = 1;
         my $top-lines = 15;
         my $footer-lines = 1;
 
         # keep a preview pane available even on very small terminals
-        if $rows <= 14 {
-            $top-lines = $rows - 2;
+        if $rows <= ($title-lines + $top-lines + $footer-lines + 1) {
+            $top-lines = $rows - $title-lines - $footer-lines - 1;
             $top-lines = 1 if $top-lines < 1;
         }
 
-        my $preview-lines = $rows - $top-lines - $footer-lines;
+        my $preview-lines = $rows - $title-lines - $top-lines - $footer-lines;
         $preview-lines = 1 if $preview-lines < 1;
 
-        return [$top-lines, $preview-lines, $footer-lines];
+        return [$title-lines, $top-lines, $preview-lines, $footer-lines];
     }
 
     method clamp-preview-line (Int $requested-line, Int $max-line) {
@@ -121,16 +122,20 @@ class JMP::UI {
         my $quit-token = 'JMP_UI_IMMEDIATE_QUIT';
 
         # Terminal::UI heights are content rows, excluding frame borders/divider.
-        # For 3 panes: available = total rows - 4 (top + 2 dividers + bottom border).
+        # For 4 panes: available = total rows - 5 (top + 3 dividers + bottom border).
         my $screen-rows = self!detect-screen-rows;
-        my $available-rows = $screen-rows - 4;
-        $available-rows = 3 if $available-rows < 3;
+        my $available-rows = $screen-rows - 5;
+        $available-rows = 4 if $available-rows < 4;
         my @pane-heights = self.pane-heights-for-rows($available-rows.Int);
         $ui.setup(heights => @pane-heights);
 
-        my $results = $ui.panes[0];
-        my $preview = $ui.panes[1];
-        my $footer = $ui.panes[2];
+        my $title = $ui.panes[0];
+        my $results = $ui.panes[1];
+        my $preview = $ui.panes[2];
+        my $footer = $ui.panes[3];
+
+        # Display command title in the fixed title pane
+        $title.put($!title);
 
         # Display help text in preview pane
         $preview.put('Press Enter on a result to preview the file here.');
@@ -146,7 +151,7 @@ class JMP::UI {
         }
 
         $results.select-first;
-        $ui.focus(pane => 0);
+        $ui.focus(pane => 1);
 
         $results.on: select => -> :%meta {
             self!preview-selected-hit($ui, $preview, +(%meta<hit-index> // 0));
@@ -170,7 +175,14 @@ class JMP::UI {
             }
         });
 
-        LEAVE $ui.shutdown;
+        LEAVE {
+            $ui.shutdown;
+            # Restore terminal line discipline (raw→cooked) and print a
+            # trailing newline so the shell prompt appears on a fresh line.
+            run 'stty', 'sane';
+            print "\n";
+            $*OUT.flush;
+        }
         try {
             $ui.interact;
             CATCH {

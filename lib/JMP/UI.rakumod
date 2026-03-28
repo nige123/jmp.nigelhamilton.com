@@ -55,26 +55,84 @@ class JMP::UI {
             $line = $line.substr(0, $width);
         }
 
-        $!footer-pane.clear;
-        $!footer-pane.put($line);
+        $!footer-pane.update($line, line => 0);
     }
 
     method !green-cursor {
         return "\e[32m▌\e[0m";
     }
 
+    method !render-title-line (Str $text) {
+        return unless $!title-pane;
+
+        $!title-pane.update($text, line => 0);
+    }
+
     method !render-search-prompt {
         return unless $!title-pane;
 
-        $!title-pane.clear;
-        $!title-pane.put('jmp to ' ~ $!search-buffer ~ self!green-cursor);
+        self!render-title-line('jmp to ' ~ $!search-buffer ~ self!green-cursor);
     }
 
     method !render-output-prompt {
         return unless $!title-pane;
 
-        $!title-pane.clear;
-        $!title-pane.put('jmp on ' ~ $!output-buffer ~ self!green-cursor);
+        self!render-title-line('jmp on ' ~ $!output-buffer ~ self!green-cursor);
+    }
+
+    method !restore-chrome (Terminal::UI $ui) {
+        return unless $!title-pane && $!footer-pane;
+
+        if $!input-context eq 'search' {
+            self!render-search-prompt;
+        }
+        elsif $!input-context eq 'output' {
+            self!render-output-prompt;
+        }
+        else {
+            self!render-title-line($!title);
+        }
+
+        self!render-footer;
+        $!title-pane.redraw;
+        $!footer-pane.redraw;
+        $ui.refresh;
+    }
+
+    method !show-help-in-preview (Terminal::UI $ui, Terminal::UI::Pane $preview) {
+        $!preview-hit = Nil;
+        $preview.clear;
+
+        my @lines = (
+            'jmp help',
+            '',
+            'Use arrow keys to move between results and preview, then open what is selected.',
+            '',
+            'Right / Enter  Open selected result or preview line',
+            'Left           Return focus from preview to results',
+            'Up / Down      Move selection',
+            'PageUp / l     Page through content',
+            't              Jump to text in files (jmp to ...)',
+            'o              Jump on files in command output output (jmp on ...)',
+            'q / x          Quit jmp',
+            'h / ?          Show this help',
+        );
+
+        unless $!searcher.defined {
+            @lines = @lines.grep(* !~~ /^ 't' \s/);
+        }
+
+        unless $!outputer.defined {
+            @lines = @lines.grep(* !~~ /^ 'o' \s/);
+        }
+
+        for @lines -> $line {
+            $preview.put($line, wrap => 'word');
+        }
+
+        $preview.select-first;
+        self!restore-chrome($ui);
+        $ui.focus(pane => 2);
     }
 
     method !load-results-into-pane ($results, @new-hits) {
@@ -237,9 +295,7 @@ class JMP::UI {
         $!editing-preview = True;
         $!editor.edit($!title, $hit);
         $ui.refresh(:hard);
-        $!title-pane.clear;
-        $!title-pane.put($!title);
-        self!render-footer;
+        self!restore-chrome($ui);
         $ui.focus(pane => 2);
         $!editing-preview = False;
     }
@@ -262,9 +318,6 @@ class JMP::UI {
         $footer.selectable  = False;
         $footer.auto-scroll = False;
 
-        # Display command title in the fixed title pane
-        $title.put($!title);
-
         # Display help text in preview pane
         $preview.put('Press Right Arrow on a result to preview the file here.');
         $preview.put('Press Right Arrow again in this pane to open the editor.');
@@ -276,7 +329,7 @@ class JMP::UI {
         $!footer-text = '[↑][↓] [←][→] select ' ~ $to-hint ~ $on-hint ~ '  [h]elp  [q]uit';
         $!title-pane  = $title;
         $!footer-pane = $footer;
-        self!render-footer;
+        self!restore-chrome($ui);
 
         # Display search results in results pane
         for @!hits.kv -> $index, $hit {
@@ -299,6 +352,11 @@ class JMP::UI {
         };
         $preview.on-sync: select => &select-preview;
         $preview.on-sync(name => 'jmp-select', action => &select-preview);
+        my &show-help = -> {
+            self!show-help-in-preview($ui, $preview);
+        };
+        $results.on-sync(name => 'jmp-help', action => &show-help);
+        $preview.on-sync(name => 'jmp-help', action => &show-help);
         $results.on-sync(name => 'jmp-left', action => -> { $results.page-up; });
         $preview.on-sync(name => 'jmp-left', action => -> { $ui.focus(pane => 1); });
 
@@ -322,13 +380,10 @@ class JMP::UI {
 
                     if $updated {
                         $ui.refresh(:hard);
-                        $!title-pane.clear;
-                        $!title-pane.put($!title);
-                        self!render-footer;
+                        self!restore-chrome($ui);
                     }
                     else {
-                        $!title-pane.clear;
-                        $!title-pane.put($!title);
+                        self!render-title-line($!title);
                     }
                 }
                 when 'Esc' {
@@ -336,8 +391,7 @@ class JMP::UI {
                     $!search-buffer = '';
                     $!output-buffer = '';
                     $!input-context = '';
-                    $!title-pane.clear;
-                    $!title-pane.put($!title);
+                    self!render-title-line($!title);
                 }
                 when 'Delete' | "\x08" {
                     if $!input-context eq 'output' {
@@ -369,20 +423,15 @@ class JMP::UI {
         # Keep explicit JMP keybindings.
         # Right arrow and Enter select; left arrow goes back from preview; l pages down.
         # Terminal::UI key names are Right/Left; keep CursorRight/CursorLeft for compatibility.
-        $ui.bind('pane', Right => 'jmp-select', CursorRight => 'jmp-select', l => 'page-down');
+        $ui.bind('pane', Right => 'jmp-select', CursorRight => 'jmp-select', l => 'page-down', h => 'jmp-help');
         $ui.bind('pane', Left => 'jmp-left', CursorLeft => 'jmp-left', PageUp => 'page-up', Enter => 'select');
         # Keep one real 'quit' action mapped so Terminal::UI interact() can resolve done key.
         # q/x use a synchronous immediate quit path.
         # Esc is context-sensitive: preview pane -> results pane, results pane -> quit.
-        # Help is routed to a synchronous action so the popup can capture dismissal keys.
-        $ui.bind(h => 'jmp-help', '?' => 'jmp-help', Q => 'quit', q => 'jmp-quit', x => 'jmp-quit', X => 'jmp-quit', Esc => 'jmp-escape');
+        $ui.bind('?' => 'jmp-help', Q => 'quit', q => 'jmp-quit', x => 'jmp-quit', X => 'jmp-quit', Esc => 'jmp-escape');
         $ui.on-sync(|{
             'jmp-help' => -> {
-                $ui.alert($ui.help-text, :!center);
-                $ui.refresh(:hard);
-                $!title-pane.clear;
-                $!title-pane.put($!title);
-                self!render-footer;
+                self!show-help-in-preview($ui, $preview);
             },
             'jmp-quit' => -> {
                 self!shutdown-cleanly($ui);

@@ -2,6 +2,25 @@
 
 Date: 2026-03-28
 
+## Release 50 (2026-03-28)
+
+### Summary
+
+This release replaces popup help with preview-pane help content and simplifies help text so actions are listed once with short explanations.
+
+### Highlights
+
+- `h` now routes to help shown directly in the preview pane.
+- Help no longer relies on the popup dialog path for the primary help key.
+- Help text is concise and non-repetitive, with single-line action explanations.
+- Fixed title and footer pane rendering with line updates for persistent chrome.
+- Version bumped to `50` in code and metadata.
+
+### Validation Notes
+
+- `lib/JMP/UI.rakumod` compile check passed.
+- CLI version output reports `jmp - version 50`.
+
 ## Release 43 (2026-03-28)
 
 ### Summary

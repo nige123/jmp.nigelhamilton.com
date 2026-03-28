@@ -12,6 +12,16 @@ class JMP::UI {
     has $!preview-hit;
     has Int $!preview-line-number = 1;
 
+    method !detect-screen-rows {
+        my $rows = (%*ENV<LINES> // '').Int;
+        if $rows < 2 {
+            my $tput = qx{tput lines 2>/dev/null}.trim;
+            $rows = $tput.Int if $tput ~~ /^\d+$/;
+        }
+        return 24 if $rows < 2;
+        return $rows;
+    }
+
     method pane-heights-for-rows (Int $rows) {
         my $top-lines = 12;
 
@@ -108,10 +118,13 @@ class JMP::UI {
         my $ui = Terminal::UI.new;
         $!ui = $ui;
 
-        # top pane (results) has 12 rows; bottom pane is the file preview
-        $ui.setup(heights => -> $rows {
-            self.pane-heights-for-rows($rows.Int);
-        });
+        # Terminal::UI heights are content rows, excluding frame borders/divider.
+        # For 2 panes: available = total rows - 3 (top border + divider + bottom border).
+        my $screen-rows = self!detect-screen-rows;
+        my $available-rows = $screen-rows - 3;
+        $available-rows = 2 if $available-rows < 2;
+        my @pane-heights = self.pane-heights-for-rows($available-rows.Int);
+        $ui.setup(heights => @pane-heights);
 
         my $results = $ui.panes[0];
         my $preview = $ui.panes[1];

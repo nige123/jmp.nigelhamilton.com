@@ -161,12 +161,12 @@ class JMP::UI {
         $ui.bind('pane', CursorRight => 'page-down', l => 'page-down');
         $ui.bind('pane', CursorLeft => 'page-up', h => 'page-up');
         $ui.bind(q => 'jmp-quit', Q => 'jmp-quit', x => 'jmp-quit', X => 'jmp-quit');
-        $ui.on-sync(
+        $ui.on-sync(|{
             'jmp-quit' => -> {
                 $ui.shutdown;
                 die $quit-token;
             }
-        );
+        });
 
         LEAVE $ui.shutdown;
         try {

@@ -5,7 +5,7 @@ use Test;
 use JMP::UI;
 use JMP::File::Hit;
 
-plan 3;
+plan 4;
 
 class DummyEditor {
     method edit (|) { }
@@ -42,4 +42,11 @@ is(
     $ui.pane-heights-for-rows(10)[2],
     1,
     'footer pane remains 1 line even on tiny terminals'
+);
+
+# Test 4: footer pane is still 1 line on large terminals
+is(
+    $ui.pane-heights-for-rows(100)[2],
+    1,
+    'footer pane never expands beyond 1 line'
 );

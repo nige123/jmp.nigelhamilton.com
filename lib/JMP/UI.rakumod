@@ -118,6 +118,7 @@ class JMP::UI {
 
         my $ui = Terminal::UI.new;
         $!ui = $ui;
+        my $quit-token = 'JMP_UI_IMMEDIATE_QUIT';
 
         # Terminal::UI heights are content rows, excluding frame borders/divider.
         # For 3 panes: available = total rows - 4 (top + 2 dividers + bottom border).
@@ -136,7 +137,7 @@ class JMP::UI {
         $preview.put('Press Enter again in this pane to open the editor.');
 
         # Display key hints in footer pane
-        $footer.put('[h]← [l]→ page  [q]uit  [Enter] select');
+        $footer.put('[h]← [l]→ page  [q/x] quit  [Enter] select');
 
         # Display search results in results pane
         for @!hits.kv -> $index, $hit {
@@ -159,9 +160,24 @@ class JMP::UI {
         # keep JMP keybindings for paging and exit
         $ui.bind('pane', CursorRight => 'page-down', l => 'page-down');
         $ui.bind('pane', CursorLeft => 'page-up', h => 'page-up');
-        $ui.bind(q => 'quit', Q => 'quit');
+        $ui.bind(q => 'jmp-quit', Q => 'jmp-quit', x => 'jmp-quit', X => 'jmp-quit');
+        $ui.on-sync(
+            'jmp-quit' => -> {
+                $ui.shutdown;
+                die $quit-token;
+            }
+        );
 
         LEAVE $ui.shutdown;
-        $ui.interact;
+        try {
+            $ui.interact;
+            CATCH {
+                default {
+                    if .message ne $quit-token {
+                        .rethrow;
+                    }
+                }
+            }
+        }
     }
 }

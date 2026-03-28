@@ -12,6 +12,7 @@ sub USAGE is export {
 
         jmp                                         -- show most recent
         jmp to '[<search-terms> ...]'               -- lines matching search terms in files
+        jmp on '<command ...>'                      -- lines from command output (stdout + stderr)
 
         # jmp on files in command output. For example:
         jmp locate README                           -- files in the filesystem
@@ -73,6 +74,17 @@ multi sub MAIN ('to', *@search-terms) is export {
 }
 
 #| jmp on files found in command output
+multi sub MAIN ('on', *@command-args) is export {
+    my $command = @command-args.join(' ');
+    if $command {
+        $jmp.find-files-in-command-output($command);
+    }
+    else {
+        MAIN('back');
+    }
+}
+
+#| backwards-compatible command-output mode without explicit `on`
 multi sub MAIN (*@command-args) is export {
     my $command = @command-args.join(' ');
     if $command {

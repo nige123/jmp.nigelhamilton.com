@@ -70,6 +70,7 @@ submethod display-hits (@hits) {
         :@hits,
         :$!editor,
         searcher => -> $terms { $!finder.find-in-files($terms) },
+        outputer => -> $command { $!finder.find-files-in-command-output($command) },
     ).display;
 
 }

@@ -1,7 +1,7 @@
 {
     "perl"        : "6",
     "name"        : "jmp",
-    "version"     : "40",
+    "version"     : "41",
     "auth"        : "github:nige123",
     "description" : "search files and jump to matching lines in your favourite text editor",
     "license"     : "Artistic-2.0",
@@ -18,7 +18,8 @@
         "JMP::Memory::Command"  : "lib/JMP/Memory/Command.rakumod",
         "JMP::Memory::Hit"      : "lib/JMP/Memory/Hit.rakumod",
         "JMP::Template"         : "lib/JMP/Template.rakumod",
-        "JMP::UI"               : "lib/JMP/UI.rakumod"
+        "JMP::UI"               : "lib/JMP/UI.rakumod",
+        "JMP::Version"          : "lib/JMP/Version.rakumod"
     },
     "resources" : [],
     "authors" : [ "Nigel Hamilton" ],

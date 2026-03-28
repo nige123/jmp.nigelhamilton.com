@@ -11,6 +11,7 @@ class JMP::UI {
 
     has $.ui;
     has $.searcher;
+    has $.outputer;
     has $!preview-hit;
     has Int $!preview-line-number = 1;
     has Bool $!editing-preview = False;
@@ -18,6 +19,8 @@ class JMP::UI {
     has $!footer-pane;
     has Str $!footer-text;
     has Str $!search-buffer = '';
+    has Str $!output-buffer = '';
+    has Str $!input-context = '';
     has Bool $!shutdown-done = False;
 
     method !center-text (Str $text, Int $width) {
@@ -65,6 +68,54 @@ class JMP::UI {
 
         $!title-pane.clear;
         $!title-pane.put('jmp to ' ~ $!search-buffer ~ self!green-cursor);
+    }
+
+    method !render-output-prompt {
+        return unless $!title-pane;
+
+        $!title-pane.clear;
+        $!title-pane.put('jmp on ' ~ $!output-buffer ~ self!green-cursor);
+    }
+
+    method !load-results-into-pane ($results, @new-hits) {
+        @!hits = @new-hits;
+        $results.clear;
+
+        if @!hits.elems {
+            for @!hits.kv -> $index, $hit {
+                my %meta = hit-index => $index;
+                $results.put($hit.render, :%meta);
+            }
+            $results.select-first;
+            return;
+        }
+
+        $results.put('(no output lines)');
+        $results.select-first;
+    }
+
+    method load-search-results (Str $terms, $results) {
+        return False unless $!searcher.defined;
+
+        my $trimmed = $terms.trim;
+        return False unless $trimmed;
+
+        $!title = 'jmp to ' ~ $trimmed;
+        my @new-hits = $!searcher.($trimmed);
+        self!load-results-into-pane($results, @new-hits);
+        return True;
+    }
+
+    method load-command-output (Str $command, $results) {
+        return False unless $!outputer.defined;
+
+        my $trimmed = $command.trim;
+        return False unless $trimmed;
+
+        $!title = 'jmp on ' ~ $trimmed;
+        my @new-hits = $!outputer.($trimmed);
+        self!load-results-into-pane($results, @new-hits);
+        return True;
     }
 
     method !shutdown-cleanly (Terminal::UI $ui) {
@@ -189,10 +240,12 @@ class JMP::UI {
         # Display help text in preview pane
         $preview.put('Press Right Arrow on a result to preview the file here.');
         $preview.put('Press Right Arrow again in this pane to open the editor.');
+        $preview.put('Press [o] in results to run a command and jump on its output.');
 
         # Display key hints in footer pane.
         my $to-hint = $!searcher.defined ?? '  [t]o search' !! '';
-        $!footer-text = '[↑][↓] [←][→] select  [PgUp] page-up  [PgDn] page-down  ' ~ $to-hint ~ '  [h]elp  [q]uit';
+        my $on-hint = $!outputer.defined ?? '  [o]utput' !! '';
+        $!footer-text = '[↑][↓] [←][→] select  [PgUp] page-up  [PgDn] page-down  ' ~ $to-hint ~ $on-hint ~ '  [h]elp  [q]uit';
         $!title-pane  = $title;
         $!footer-pane = $footer;
         self!render-footer;
@@ -226,23 +279,26 @@ class JMP::UI {
             given $arg {
                 when 'Enter' {
                     $ui.mode = 'command';
-                    my $terms = $!search-buffer.trim;
-                    $!search-buffer = '';
-                    if $terms && $!searcher.defined {
-                        $!title = 'jmp to ' ~ $terms;
-                        my @new-hits = $!searcher.($terms);
-                        @!hits = @new-hits;
-                        $results.clear;
-                        for @!hits.kv -> $index, $hit {
-                            my %meta = hit-index => $index;
-                            $results.put($hit.render, :%meta);
-                        }
-                        $results.select-first;
+                    my $updated = False;
+
+                    if $!input-context eq 'search' {
+                        $updated = self.load-search-results($!search-buffer, $results);
+                        $!search-buffer = '';
+                    }
+                    elsif $!input-context eq 'output' {
+                        $updated = self.load-command-output($!output-buffer, $results);
+                        $!output-buffer = '';
+                    }
+
+                    $!input-context = '';
+
+                    if $updated {
                         $ui.refresh(:hard);
                         $!title-pane.clear;
                         $!title-pane.put($!title);
                         self!render-footer;
-                    } else {
+                    }
+                    else {
                         $!title-pane.clear;
                         $!title-pane.put($!title);
                     }
@@ -250,17 +306,34 @@ class JMP::UI {
                 when 'Esc' {
                     $ui.mode = 'command';
                     $!search-buffer = '';
+                    $!output-buffer = '';
+                    $!input-context = '';
                     $!title-pane.clear;
                     $!title-pane.put($!title);
                 }
                 when 'Delete' | "\x08" {
-                    my $new-length = $!search-buffer.chars > 0 ?? $!search-buffer.chars - 1 !! 0;
-                    $!search-buffer = $!search-buffer.substr(0, $new-length);
-                    self!render-search-prompt;
+                    if $!input-context eq 'output' {
+                        my $new-length = $!output-buffer.chars > 0 ?? $!output-buffer.chars - 1 !! 0;
+                        $!output-buffer = $!output-buffer.substr(0, $new-length);
+                        self!render-output-prompt;
+                    }
+                    else {
+                        my $new-length = $!search-buffer.chars > 0 ?? $!search-buffer.chars - 1 !! 0;
+                        $!search-buffer = $!search-buffer.substr(0, $new-length);
+                        self!render-search-prompt;
+                    }
                 }
                 default {
-                    $!search-buffer ~= $arg if $arg.chars == 1;
-                    self!render-search-prompt;
+                    if $arg.chars == 1 {
+                        if $!input-context eq 'output' {
+                            $!output-buffer ~= $arg;
+                            self!render-output-prompt;
+                        }
+                        else {
+                            $!search-buffer ~= $arg;
+                            self!render-search-prompt;
+                        }
+                    }
                 }
             }
         };
@@ -296,7 +369,21 @@ class JMP::UI {
                 'new-search' => -> {
                     $ui.focus(pane => 1);
                     $!search-buffer = '';
+                    $!input-context = 'search';
                     self!render-search-prompt;
+                    $ui.mode = 'input';
+                }
+            });
+        }
+
+        if $!outputer.defined {
+            $ui.bind(o => 'new-output');
+            $ui.on-sync(|{
+                'new-output' => -> {
+                    $ui.focus(pane => 1);
+                    $!output-buffer = '';
+                    $!input-context = 'output';
+                    self!render-output-prompt;
                     $ui.mode = 'input';
                 }
             });

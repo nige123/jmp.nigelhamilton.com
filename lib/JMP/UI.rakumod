@@ -11,6 +11,7 @@ class JMP::UI {
     has $.ui;
     has $!preview-hit;
     has Int $!preview-line-number = 1;
+    has Bool $!editing-preview = False;
 
     method clamp-preview-line (Int $requested-line, Int $max-line) {
         return 1 if $max-line < 1;
@@ -48,7 +49,8 @@ class JMP::UI {
         $!preview-hit = $hit;
 
         my $file = $hit.absolute-path;
-        my @lines = $file.IO.lines(:enc('utf8-c8'));
+        # Slurp eagerly so the file handle is released before preview rendering.
+        my @lines = $file.IO.slurp(:enc('utf8-c8')).lines;
 
         if @lines.elems == 0 {
             $preview.put('     1:');
@@ -72,6 +74,7 @@ class JMP::UI {
     }
 
     method !edit-preview-selection (Terminal::UI $ui) {
+        return if $!editing-preview;
         return unless $!preview-hit;
 
         my $line-number = $!preview-line-number // $!preview-hit.line-number // 1;
@@ -81,6 +84,9 @@ class JMP::UI {
             absolute-path => $!preview-hit.absolute-path,
             :$line-number,
         );
+
+        $!editing-preview = True;
+        LEAVE { $!editing-preview = False; }
 
         $ui.pause-and-do({
             $!editor.edit($!title, $hit);

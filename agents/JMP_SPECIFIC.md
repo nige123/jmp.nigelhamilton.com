@@ -64,3 +64,18 @@ Preserve:
 ## For future change decisions
 
 Prefer adding a clear new flag or mode over silently changing old behaviour.
+
+## For Terminal::UI editor handoff
+
+When launching an external editor from inside Terminal::UI:
+
+- prefer `on-sync` for the action that shells out
+- avoid `shutdown` unless you are leaving the UI for good
+- after the editor exits, redraw with `refresh(:hard)`
+
+Reason:
+
+- `on` dispatches through `start`, so the reactor and tty reader can keep running and compete with the editor for keypresses
+- `shutdown` closes and reopens Terminal::UI input state, which can leave the editor inheriting the wrong tty mode if the loop is still active
+
+Use the upstream `eg/21-external.raku` pattern as the baseline for external editor integration.

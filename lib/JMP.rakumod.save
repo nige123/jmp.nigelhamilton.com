@@ -9,8 +9,6 @@
 
 unit class JMP;
 
-use JMP::Version;
-
 use JMP::Config;
 use JMP::Editor;
 use JMP::Finder;
@@ -42,6 +40,8 @@ method find-files-in-command-output ($sub-command) {
     my @hits = self.finder.find-files-in-command-output($sub-command);
     self.display-hits(@hits);
 }
+y
+qq
 
 method search-in-files ($search-terms) {
     my @hits = self.finder.find-in-files($search-terms);
@@ -66,10 +66,9 @@ submethod display-hits (@hits) {
 
     # display the results
     JMP::UI.new(
-        title    => self.command,
+        title => self.command,
         :@hits,
         :$!editor,
-        searcher => -> $terms { $!finder.find-in-files($terms) },
     ).display;
 
 }

@@ -1,6 +1,7 @@
 
 use Terminal::UI;
 use JMP::File::Hit;
+use JMP::Version;
 
 class JMP::UI {
 
@@ -9,9 +10,78 @@ class JMP::UI {
     has @.hits      is required;
 
     has $.ui;
+    has $.searcher;
     has $!preview-hit;
     has Int $!preview-line-number = 1;
     has Bool $!editing-preview = False;
+    has $!title-pane;
+    has $!footer-pane;
+    has Str $!footer-text;
+    has Str $!search-buffer = '';
+    has Bool $!shutdown-done = False;
+
+    method !center-text (Str $text, Int $width) {
+        return $text if $width <= $text.chars;
+
+        my $padding = ($width - $text.chars) div 2;
+        return (' ' x $padding) ~ $text;
+    }
+
+    method !render-footer {
+        return unless $!footer-pane;
+
+        my $version = 'jmp v' ~ JMP::Version::VERSION;
+        my $width = $!footer-pane.width.Int;
+        my $actions-width = $width - $version.chars - 1;
+
+        my $line;
+        if $actions-width > 0 {
+            my $actions = self!center-text($!footer-text, $actions-width);
+            if $actions.chars < $actions-width {
+                $actions ~= ' ' x ($actions-width - $actions.chars);
+            }
+            $line = $actions ~ ' ' ~ $version;
+        } else {
+            $line = $version;
+        }
+
+        if $line.chars < $width {
+            $line ~= ' ' x ($width - $line.chars);
+        }
+        elsif $line.chars > $width {
+            $line = $line.substr(0, $width);
+        }
+
+        $!footer-pane.clear;
+        $!footer-pane.put($line);
+    }
+
+    method !green-cursor {
+        return "\e[32m▌\e[0m";
+    }
+
+    method !render-search-prompt {
+        return unless $!title-pane;
+
+        $!title-pane.clear;
+        $!title-pane.put('jmp to ' ~ $!search-buffer ~ self!green-cursor);
+    }
+
+    method !shutdown-cleanly (Terminal::UI $ui) {
+        return if $!shutdown-done;
+
+        $!shutdown-done = True;
+        $ui.shutdown;
+        # Leave terminal in a clean prompt state: column 1, cleared line.
+        print "\r\e[2K";
+        $*OUT.flush;
+    }
+
+    method !resume-after-editor {
+        print "Press any key to resume jmp: ";
+        $*IN.read(1);
+        print "\n";
+    }
 
     method clamp-preview-line (Int $requested-line, Int $max-line) {
         return 1 if $max-line < 1;
@@ -86,19 +156,20 @@ class JMP::UI {
         );
 
         $!editing-preview = True;
-        LEAVE { $!editing-preview = False; }
-
-        $ui.pause-and-do({
-            $!editor.edit($!title, $hit);
-        });
-        $ui.focus(pane => 2);
+        $!editor.edit($!title, $hit);
         $ui.refresh(:hard);
+        $!title-pane.clear;
+        $!title-pane.put($!title);
+        self!render-footer;
+        $ui.focus(pane => 2);
+        $!editing-preview = False;
     }
 
     method display {
 
         my $ui = Terminal::UI.new;
         $!ui = $ui;
+        $!shutdown-done = False;
         my $quit-token = 'JMP_UI_IMMEDIATE_QUIT';
 
         # Fixed 1-row title and footer; results fixed at 15 rows; preview takes remaining space.
@@ -116,11 +187,15 @@ class JMP::UI {
         $title.put($!title);
 
         # Display help text in preview pane
-        $preview.put('Press Enter on a result to preview the file here.');
-        $preview.put('Press Enter again in this pane to open the editor.');
+        $preview.put('Press Right Arrow on a result to preview the file here.');
+        $preview.put('Press Right Arrow again in this pane to open the editor.');
 
-        # Display key hints in footer pane
-        $footer.put('[h]← [l]→ page  [q/x] quit  [Enter] select');
+        # Display key hints in footer pane.
+        my $to-hint = $!searcher.defined ?? '  [t]o search' !! '';
+        $!footer-text = '[↑][↓] [←][→] select  [PgUp] page-up  [PgDn] page-down  ' ~ $to-hint ~ '  [h]elp  [q]uit';
+        $!title-pane  = $title;
+        $!footer-pane = $footer;
+        self!render-footer;
 
         # Display search results in results pane
         for @!hits.kv -> $index, $hit {
@@ -131,45 +206,114 @@ class JMP::UI {
         $results.select-first;
         $ui.focus(pane => 1);
 
-        $results.on: select => -> :%meta {
+        my &select-results = -> :%meta {
             self!preview-selected-hit($ui, $preview, +(%meta<hit-index> // 0));
         };
+        $results.on-sync: select => &select-results;
+        $results.on-sync(name => 'jmp-select', action => &select-results);
 
-        $preview.on: select => -> :%meta {
+        my &select-preview = -> :%meta {
             $!preview-line-number = +(%meta<line-number> // 1);
             self!edit-preview-selection($ui);
         };
+        $preview.on-sync: select => &select-preview;
+        $preview.on-sync(name => 'jmp-select', action => &select-preview);
+        $results.on-sync(name => 'jmp-left', action => -> { $results.page-up; });
+        $preview.on-sync(name => 'jmp-left', action => -> { $ui.focus(pane => 1); });
 
-        # keep JMP keybindings for paging and exit
-        $ui.bind('pane', CursorRight => 'page-down', l => 'page-down');
-        $ui.bind('pane', CursorLeft => 'page-up', h => 'page-up');
+        # [t]o interactive search: accumulate typed chars in input mode, run search on Enter
+        $results.on-sync: input => -> $arg {
+            given $arg {
+                when 'Enter' {
+                    $ui.mode = 'command';
+                    my $terms = $!search-buffer.trim;
+                    $!search-buffer = '';
+                    if $terms && $!searcher.defined {
+                        $!title = 'jmp to ' ~ $terms;
+                        my @new-hits = $!searcher.($terms);
+                        @!hits = @new-hits;
+                        $results.clear;
+                        for @!hits.kv -> $index, $hit {
+                            my %meta = hit-index => $index;
+                            $results.put($hit.render, :%meta);
+                        }
+                        $results.select-first;
+                        $ui.refresh(:hard);
+                        $!title-pane.clear;
+                        $!title-pane.put($!title);
+                        self!render-footer;
+                    } else {
+                        $!title-pane.clear;
+                        $!title-pane.put($!title);
+                    }
+                }
+                when 'Esc' {
+                    $ui.mode = 'command';
+                    $!search-buffer = '';
+                    $!title-pane.clear;
+                    $!title-pane.put($!title);
+                }
+                when 'Delete' | "\x08" {
+                    my $new-length = $!search-buffer.chars > 0 ?? $!search-buffer.chars - 1 !! 0;
+                    $!search-buffer = $!search-buffer.substr(0, $new-length);
+                    self!render-search-prompt;
+                }
+                default {
+                    $!search-buffer ~= $arg if $arg.chars == 1;
+                    self!render-search-prompt;
+                }
+            }
+        };
+
+        # Keep explicit JMP keybindings.
+        # Right arrow and Enter select; left arrow goes back from preview; l pages down.
+        # Terminal::UI key names are Right/Left; keep CursorRight/CursorLeft for compatibility.
+        $ui.bind('pane', Right => 'jmp-select', CursorRight => 'jmp-select', l => 'page-down');
+        $ui.bind('pane', Left => 'jmp-left', CursorLeft => 'jmp-left', PageUp => 'page-up', Enter => 'jmp-select');
         # Keep one real 'quit' action mapped so Terminal::UI interact() can resolve done key.
         # q/x use a synchronous immediate quit path.
-        $ui.bind(Q => 'quit', q => 'jmp-quit', x => 'jmp-quit', X => 'jmp-quit');
+        # Esc is context-sensitive: preview pane -> results pane, results pane -> quit.
+        $ui.bind('?' => 'help', Q => 'quit', q => 'jmp-quit', x => 'jmp-quit', X => 'jmp-quit', Esc => 'jmp-escape');
         $ui.on-sync(|{
             'jmp-quit' => -> {
-                $ui.shutdown;
+                self!shutdown-cleanly($ui);
+                die $quit-token;
+            },
+            'jmp-escape' => -> {
+                if $ui.focused === $preview {
+                    $ui.focus(pane => 1);
+                    return;
+                }
+
+                self!shutdown-cleanly($ui);
                 die $quit-token;
             }
         });
 
-        LEAVE {
-            $ui.shutdown;
-            # Restore terminal line discipline (raw→cooked) and print a
-            # trailing newline so the shell prompt appears on a fresh line.
-            run 'stty', 'sane';
-            print "\n";
-            $*OUT.flush;
+        if $!searcher.defined {
+            $ui.bind(t => 'new-search');
+            $ui.on-sync(|{
+                'new-search' => -> {
+                    $ui.focus(pane => 1);
+                    $!search-buffer = '';
+                    self!render-search-prompt;
+                    $ui.mode = 'input';
+                }
+            });
         }
+
         try {
             $ui.interact;
             CATCH {
                 default {
                     if .message ne $quit-token {
+                        self!shutdown-cleanly($ui);
                         .rethrow;
                     }
                 }
             }
         }
+
+        self!shutdown-cleanly($ui);
     }
 }

@@ -5,4 +5,6 @@ set -euo pipefail
 # This bypasses any globally installed jmp wrapper in ~/.raku/bin.
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+export HARNESS_ACTIVE=1
+
 exec raku -I"${repo_root}/lib" "${repo_root}/bin/jmp" "$@"

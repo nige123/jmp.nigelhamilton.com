@@ -1,4 +1,5 @@
 use JMP;
+use JMP::Version;
 unit module JMP::CLI;
 
 sub USAGE is export {
@@ -57,7 +58,7 @@ multi sub MAIN ('edit', $filename, *@search-terms) is export {
 
 #| show the current version
 multi sub MAIN ('version') is export {
-    say 'jmp - version 10';
+    say 'jmp - version ' ~ JMP::Version::VERSION;
 }
 
 #| show this help

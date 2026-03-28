@@ -160,7 +160,9 @@ class JMP::UI {
         # keep JMP keybindings for paging and exit
         $ui.bind('pane', CursorRight => 'page-down', l => 'page-down');
         $ui.bind('pane', CursorLeft => 'page-up', h => 'page-up');
-        $ui.bind(q => 'jmp-quit', Q => 'jmp-quit', x => 'jmp-quit', X => 'jmp-quit');
+        # Keep one real 'quit' action mapped so Terminal::UI interact() can resolve done key.
+        # q/x use a synchronous immediate quit path.
+        $ui.bind(Q => 'quit', q => 'jmp-quit', x => 'jmp-quit', X => 'jmp-quit');
         $ui.on-sync(|{
             'jmp-quit' => -> {
                 $ui.shutdown;

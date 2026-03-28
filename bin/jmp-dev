@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Always run jmp from this workspace source tree.
+# This bypasses any globally installed jmp wrapper in ~/.raku/bin.
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+exec raku -I"${repo_root}/lib" "${repo_root}/bin/jmp" "$@"

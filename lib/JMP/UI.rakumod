@@ -41,7 +41,7 @@ class JMP::UI {
         unless $hit {
             $preview.put('No preview available for this entry.');
             $preview.select-first;
-            $ui.focus(pane => 1);
+            $ui.focus(pane => 2);
             return;
         }
 
@@ -54,7 +54,7 @@ class JMP::UI {
             $preview.put('     1:');
             $preview.select-first;
             $!preview-line-number = 1;
-            $ui.focus(pane => 1);
+            $ui.focus(pane => 2);
             return;
         }
 
@@ -68,7 +68,7 @@ class JMP::UI {
         $preview.select($target-line - 1);
         $!preview-line-number = $target-line;
 
-        $ui.focus(pane => 1);
+        $ui.focus(pane => 2);
     }
 
     method !edit-preview-selection (Terminal::UI $ui) {
@@ -85,6 +85,7 @@ class JMP::UI {
         $ui.pause-and-do({
             $!editor.edit($!title, $hit);
         });
+        $ui.focus(pane => 2);
         $ui.refresh(:hard);
     }
 

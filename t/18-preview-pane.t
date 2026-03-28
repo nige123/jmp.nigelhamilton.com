@@ -25,8 +25,8 @@ my $ui = JMP::UI.new(
 
 is-deeply(
     $ui.pane-heights-for-rows(30),
-    [12, 17, 1],
-    'top pane uses 12 lines, preview uses remaining, footer is 1 line'
+    [15, 14, 1],
+    'top pane uses 15 lines, preview uses remaining, footer is 1 line'
 );
 
 is-deeply(

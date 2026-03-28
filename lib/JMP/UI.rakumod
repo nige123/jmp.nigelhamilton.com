@@ -23,7 +23,7 @@ class JMP::UI {
     }
 
     method pane-heights-for-rows (Int $rows) {
-        my $top-lines = 12;
+        my $top-lines = 15;
         my $footer-lines = 1;
 
         # keep a preview pane available even on very small terminals

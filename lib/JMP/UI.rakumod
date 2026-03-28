@@ -141,6 +141,31 @@ class JMP::UI {
         return $requested-line;
     }
 
+    method preview-window (Int $max-line, Int $target-line, Int $window-size = 400) {
+        return (1, 1) if $max-line < 1;
+
+        my $safe-target = self.clamp-preview-line($target-line, $max-line);
+        my $window = $window-size < 1 ?? 1 !! $window-size;
+
+        return (1, $max-line) if $max-line <= $window;
+
+        my $half = $window div 2;
+        my $start = $safe-target - $half;
+        my $end = $start + $window - 1;
+
+        if $start < 1 {
+            $start = 1;
+            $end = $window;
+        }
+
+        if $end > $max-line {
+            $end = $max-line;
+            $start = $end - $window + 1;
+        }
+
+        return ($start, $end);
+    }
+
     method !resolve-editable-hit (Int $hit-index) {
         my $hit = @!hits[$hit-index] // return;
 
@@ -181,14 +206,17 @@ class JMP::UI {
             return;
         }
 
-        for @lines.kv -> $index, $line {
+        my ($start, $end) = self.preview-window(@lines.elems.Int, $hit.line-number.Int);
+
+        for ($start - 1) .. ($end - 1) -> $index {
+            my $line = @lines[$index];
             my $line-number = $index + 1;
             my %meta = line-number => $line-number;
             $preview.put($line-number.fmt('%6d') ~ ': ' ~ $line, :%meta);
         }
 
         my $target-line = self.clamp-preview-line($hit.line-number.Int, @lines.elems.Int);
-        $preview.select($target-line - 1);
+        $preview.select($target-line - $start);
         $!preview-line-number = $target-line;
 
         $ui.focus(pane => 2);
@@ -342,12 +370,20 @@ class JMP::UI {
         # Right arrow and Enter select; left arrow goes back from preview; l pages down.
         # Terminal::UI key names are Right/Left; keep CursorRight/CursorLeft for compatibility.
         $ui.bind('pane', Right => 'jmp-select', CursorRight => 'jmp-select', l => 'page-down');
-        $ui.bind('pane', Left => 'jmp-left', CursorLeft => 'jmp-left', PageUp => 'page-up', Enter => 'jmp-select');
+        $ui.bind('pane', Left => 'jmp-left', CursorLeft => 'jmp-left', PageUp => 'page-up', Enter => 'select');
         # Keep one real 'quit' action mapped so Terminal::UI interact() can resolve done key.
         # q/x use a synchronous immediate quit path.
         # Esc is context-sensitive: preview pane -> results pane, results pane -> quit.
-        $ui.bind('?' => 'help', Q => 'quit', q => 'jmp-quit', x => 'jmp-quit', X => 'jmp-quit', Esc => 'jmp-escape');
+        # Help is routed to a synchronous action so the popup can capture dismissal keys.
+        $ui.bind(h => 'jmp-help', '?' => 'jmp-help', Q => 'quit', q => 'jmp-quit', x => 'jmp-quit', X => 'jmp-quit', Esc => 'jmp-escape');
         $ui.on-sync(|{
+            'jmp-help' => -> {
+                $ui.alert($ui.help-text, :!center);
+                $ui.refresh(:hard);
+                $!title-pane.clear;
+                $!title-pane.put($!title);
+                self!render-footer;
+            },
             'jmp-quit' => -> {
                 self!shutdown-cleanly($ui);
                 die $quit-token;

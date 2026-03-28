@@ -2,6 +2,25 @@
 
 Date: 2026-03-28
 
+## Release 43 (2026-03-28)
+
+### Summary
+
+This release finalizes TUI help dialog behavior and includes the latest preview and versioning updates.
+
+### Highlights
+
+- Help dialog can now be dismissed with Enter on OK.
+- Header and footer are restored after closing help, preventing blank chrome after dialog dismissal.
+- Added bounded preview-window rendering for faster preview pane updates on large files.
+- Added preview-window regression tests.
+- Bumped project version to `43` in code and metadata.
+
+### Validation Notes
+
+- Version and load tests were previously run during this change series (`t/00-load.t`, `t/22-version.t`).
+- Full suite and targeted pane/output tests were run earlier in this session for the preview/help change set.
+
 ## Summary
 
 This commit captures all currently modified files in the working tree.

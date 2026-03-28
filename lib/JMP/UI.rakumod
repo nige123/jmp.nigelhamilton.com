@@ -244,8 +244,8 @@ class JMP::UI {
 
         # Display key hints in footer pane.
         my $to-hint = $!searcher.defined ?? '  [t]o search' !! '';
-        my $on-hint = $!outputer.defined ?? '  [o]utput' !! '';
-        $!footer-text = '[↑][↓] [←][→] select  [PgUp] page-up  [PgDn] page-down  ' ~ $to-hint ~ $on-hint ~ '  [h]elp  [q]uit';
+        my $on-hint = $!outputer.defined ?? '  [o]n cmd'    !! '';
+        $!footer-text = '[↑][↓] [←][→] select ' ~ $to-hint ~ $on-hint ~ '  [h]elp  [q]uit';
         $!title-pane  = $title;
         $!footer-pane = $footer;
         self!render-footer;

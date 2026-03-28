@@ -12,33 +12,6 @@ class JMP::UI {
     has $!preview-hit;
     has Int $!preview-line-number = 1;
 
-    method !detect-screen-rows {
-        my $rows = (%*ENV<LINES> // '').Int;
-        if $rows < 2 {
-            my $tput = qx{tput lines 2>/dev/null}.trim;
-            $rows = $tput.Int if $tput ~~ /^\d+$/;
-        }
-        return 24 if $rows < 2;
-        return $rows;
-    }
-
-    method pane-heights-for-rows (Int $rows) {
-        my $title-lines = 1;
-        my $top-lines = 15;
-        my $footer-lines = 1;
-
-        # keep a preview pane available even on very small terminals
-        if $rows <= ($title-lines + $top-lines + $footer-lines + 1) {
-            $top-lines = $rows - $title-lines - $footer-lines - 1;
-            $top-lines = 1 if $top-lines < 1;
-        }
-
-        my $preview-lines = $rows - $title-lines - $top-lines - $footer-lines;
-        $preview-lines = 1 if $preview-lines < 1;
-
-        return [$title-lines, $top-lines, $preview-lines, $footer-lines];
-    }
-
     method clamp-preview-line (Int $requested-line, Int $max-line) {
         return 1 if $max-line < 1;
         return 1 if $requested-line < 1;
@@ -121,18 +94,16 @@ class JMP::UI {
         $!ui = $ui;
         my $quit-token = 'JMP_UI_IMMEDIATE_QUIT';
 
-        # Terminal::UI heights are content rows, excluding frame borders/divider.
-        # For 4 panes: available = total rows - 5 (top + 3 dividers + bottom border).
-        my $screen-rows = self!detect-screen-rows;
-        my $available-rows = $screen-rows - 5;
-        $available-rows = 4 if $available-rows < 4;
-        my @pane-heights = self.pane-heights-for-rows($available-rows.Int);
-        $ui.setup(heights => @pane-heights);
+        # Fixed 1-row title and footer; results fixed at 15 rows; preview takes remaining space.
+        $ui.setup(heights => [1, 15, fr => 1, 1]);
 
-        my $title = $ui.panes[0];
-        my $results = $ui.panes[1];
-        my $preview = $ui.panes[2];
-        my $footer = $ui.panes[3];
+        my ($title, $results, $preview, $footer) = $ui.panes;
+
+        # Title and footer are display-only: prevent focus and disable scrolling.
+        $title.selectable  = False;
+        $title.auto-scroll = False;
+        $footer.selectable  = False;
+        $footer.auto-scroll = False;
 
         # Display command title in the fixed title pane
         $title.put($!title);

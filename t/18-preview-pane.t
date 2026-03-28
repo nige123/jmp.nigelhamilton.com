@@ -5,7 +5,7 @@ use Test;
 use JMP::UI;
 use JMP::File::Hit;
 
-plan 6;
+plan 4;
 
 class DummyEditor {
     method edit (|) { }
@@ -21,18 +21,6 @@ my $ui = JMP::UI.new(
     title => 'jmp to test',
     editor => DummyEditor.new,
     hits => [$sample-hit],
-);
-
-is-deeply(
-    $ui.pane-heights-for-rows(30),
-    [15, 14, 1],
-    'top pane uses 15 lines, preview uses remaining, footer is 1 line'
-);
-
-is-deeply(
-    $ui.pane-heights-for-rows(10),
-    [8, 1, 1],
-    'small terminals reserve preview and footer panes'
 );
 
 is(

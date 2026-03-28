@@ -25,14 +25,14 @@ my $ui = JMP::UI.new(
 
 is-deeply(
     $ui.pane-heights-for-rows(30),
-    [12, 18],
-    'top pane uses 12 lines on normal terminal sizes'
+    [12, 17, 1],
+    'top pane uses 12 lines, preview uses remaining, footer is 1 line'
 );
 
 is-deeply(
     $ui.pane-heights-for-rows(10),
-    [9, 1],
-    'small terminals still reserve a preview pane'
+    [8, 1, 1],
+    'small terminals reserve preview and footer panes'
 );
 
 is(

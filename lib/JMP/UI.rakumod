@@ -24,17 +24,18 @@ class JMP::UI {
 
     method pane-heights-for-rows (Int $rows) {
         my $top-lines = 12;
+        my $footer-lines = 1;
 
         # keep a preview pane available even on very small terminals
-        if $rows <= 13 {
-            $top-lines = $rows - 1;
+        if $rows <= 14 {
+            $top-lines = $rows - 2;
             $top-lines = 1 if $top-lines < 1;
         }
 
-        my $preview-lines = $rows - $top-lines;
+        my $preview-lines = $rows - $top-lines - $footer-lines;
         $preview-lines = 1 if $preview-lines < 1;
 
-        return [$top-lines, $preview-lines];
+        return [$top-lines, $preview-lines, $footer-lines];
     }
 
     method clamp-preview-line (Int $requested-line, Int $max-line) {
@@ -119,19 +120,25 @@ class JMP::UI {
         $!ui = $ui;
 
         # Terminal::UI heights are content rows, excluding frame borders/divider.
-        # For 2 panes: available = total rows - 3 (top border + divider + bottom border).
+        # For 3 panes: available = total rows - 4 (top + 2 dividers + bottom border).
         my $screen-rows = self!detect-screen-rows;
-        my $available-rows = $screen-rows - 3;
-        $available-rows = 2 if $available-rows < 2;
+        my $available-rows = $screen-rows - 4;
+        $available-rows = 3 if $available-rows < 3;
         my @pane-heights = self.pane-heights-for-rows($available-rows.Int);
         $ui.setup(heights => @pane-heights);
 
         my $results = $ui.panes[0];
         my $preview = $ui.panes[1];
+        my $footer = $ui.panes[2];
 
+        # Display help text in preview pane
         $preview.put('Press Enter on a result to preview the file here.');
         $preview.put('Press Enter again in this pane to open the editor.');
 
+        # Display key hints in footer pane
+        $footer.put('[h]← [l]→ page  [q]uit  [Enter] select');
+
+        # Display search results in results pane
         for @!hits.kv -> $index, $hit {
             my %meta = hit-index => $index;
             $results.put($hit.render, :%meta);
@@ -152,7 +159,7 @@ class JMP::UI {
         # keep JMP keybindings for paging and exit
         $ui.bind('pane', CursorRight => 'page-down', l => 'page-down');
         $ui.bind('pane', CursorLeft => 'page-up', h => 'page-up');
-        $ui.bind(x => 'quit', X => 'quit');
+        $ui.bind(q => 'quit', Q => 'quit');
 
         LEAVE $ui.shutdown;
         $ui.interact;

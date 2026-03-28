@@ -22,11 +22,11 @@ class JMP::Editor {
         # render $EDITOR command template - found in the config file
         my $edit-file-command = $!config.get('editor.command.template', { :$filename, :$line-number });
 
-        # Connect the editor explicitly to /dev/tty so it gets a proper
-        # terminal regardless of how stdin/stdout are connected to jmp.
-        my $tty = open('/dev/tty', :rw);
-        shell($edit-file-command, :in($tty), :out($tty), :err($tty));
-        $tty.close;
+        # Redirect stdin/out/err to /dev/tty within the shell command so the
+        # editor inherits a real terminal fd regardless of how jmp's own
+        # stdin/stdout are connected (Terminal::UI reads from /dev/tty
+        # directly, leaving the process stdin potentially disconnected).
+        shell("$edit-file-command </dev/tty >/dev/tty 2>/dev/tty");
 
     }
 

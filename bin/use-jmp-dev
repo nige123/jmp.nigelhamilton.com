@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Source this file to route `jmp` to this repo's dev launcher for the
+# current shell session.
+# Usage: source bin/use-jmp-dev
+
+_repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+jmp() {
+    "${_repo_root}/bin/jmp-dev" "$@"
+}
+
+export -f jmp
+
+echo "jmp now points to ${_repo_root}/bin/jmp-dev for this shell session"

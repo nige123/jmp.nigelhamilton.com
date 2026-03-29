@@ -2,6 +2,39 @@
 
 Date: 2026-03-28
 
+## Release 52 (2026-03-29)
+
+### Summary
+
+This release finishes the raku.land and zef metadata cleanup by making the repository source URL fully ecosystem-compliant.
+
+### Highlights
+
+- Updated `support.source` to the Git repository URL ending in `.git` to satisfy `Test::META` expectations.
+- Bumped project version to `52` in code and metadata.
+
+### Validation Notes
+
+- `TERM=dumb prove -e raku t/meta.t t/00-load.t t/22-version.t` passed after the metadata cleanup.
+
+## Release 51 (2026-03-29)
+
+### Summary
+
+This release prepares `jmp` for the Raku ecosystem with a fuller package README and corrected distribution metadata for zef and raku.land.
+
+### Highlights
+
+- Expanded the README with install instructions, command overview, workflow examples, TUI keys, and configuration notes.
+- Moved `Test::META` from runtime dependencies to `test-depends`.
+- Switched the distribution `source-url` to HTTPS and added the repository URL under `support.source`.
+- Bumped project version to `51` in code and metadata.
+
+### Validation Notes
+
+- Packaging metadata and README were updated for release consumption.
+- Targeted packaging checks were run after these changes.
+
 ## Release 50 (2026-03-28)
 
 ### Summary

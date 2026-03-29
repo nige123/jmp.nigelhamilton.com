@@ -1,11 +1,12 @@
 {
     "perl"        : "6",
     "name"        : "jmp",
-    "version"     : "50",
+    "version"     : "52",
     "auth"        : "github:nige123",
     "description" : "search files and jump to matching lines in your favourite text editor",
     "license"     : "Artistic-2.0",
-    "depends"     : [ "Terminal::UI", "Test::META", "JSON::Tiny" ],
+    "depends"     : [ "Terminal::UI", "JSON::Tiny" ],
+    "test-depends": [ "Test::META" ],
     "provides"    : {
         "JMP"                   : "lib/JMP.rakumod",
         "JMP::CLI"              : "lib/JMP/CLI.rakumod",
@@ -24,12 +25,13 @@
     "resources" : [],
     "authors" : [ "Nigel Hamilton" ],
     "support" : {
-        "bugtracker" : "https://github.com/nige123/jmp.nigelhamilton.com/issues"
+        "bugtracker" : "https://github.com/nige123/jmp.nigelhamilton.com/issues",
+        "source"     : "https://github.com/nige123/jmp.nigelhamilton.com.git"
     },
     "tags"        : [
         "invoke-editor",
         "code-search",
         "file-search"
     ],
-    "source-url"  : "git://github.com/nige123/jmp.nigelhamilton.com.git"
+    "source-url"  : "https://github.com/nige123/jmp.nigelhamilton.com.git"
 }

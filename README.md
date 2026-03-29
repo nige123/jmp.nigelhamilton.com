@@ -4,6 +4,12 @@
 
 It is built for everyday workflow navigation: search across files, inspect a preview, and open the right location without leaving the terminal.
 
+## Go implementation
+
+A Go implementation is available at <https://github.com/nige123/go-jmp.nigelhamilton.com>.
+
+New features are implemented in this Raku project first, and then carried over to the Go version.
+
 ![jmp demo](https://raw.githubusercontent.com/nige123/jmp.nigelhamilton.com/master/images/demo.gif)
 
 ## Install

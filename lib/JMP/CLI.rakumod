@@ -10,21 +10,21 @@ sub USAGE is export {
 
     Usage:
 
-        jmp                                         -- show most recent
-        jmp to '[<search-terms> ...]'               -- lines matching search terms in files
-        jmp on '<command ...>'                      -- lines from command output (stdout + stderr)
+        jmp                                         -- show most recent jmps
+        jmp in '[<search-terms> ...]'               -- search in files for matching lines
+        jmp to <filename>                           -- locate a file anywhere in the filesystem
+        jmp to <filename> <line-number>             -- jump to a specific line in a file
+        jmp on '<command ...>'                      -- jump on files in command output
 
-        # jmp on files in command output. For example:
-        jmp on locate README                        -- files in the filesystem
+        # jmp on examples:
         jmp on tail /some.log                       -- files mentioned in log files
         jmp on ls                                   -- files in a directory
-        jmp on find .                               -- files returned from the find command
+        jmp on find .                               -- files returned from find
         jmp on git status                           -- files in git
         jmp on perl test.pl                         -- Perl output and errors
         jmp on raku test.raku                       -- Raku output and errors
 
-        jmp config                                  -- edit ~/.jmp config to set the editor
-                                                    -- and search commands
+        jmp config                                  -- edit ~/.jmp config
         jmp help                                    -- show this help
 
         jmp edit <filename> [<line-number>]         -- start editing at a line number
@@ -67,10 +67,20 @@ multi sub MAIN ('help') is export {
     USAGE();
 }
 
-#| jmp to matching lines in files
-multi sub MAIN ('to', *@search-terms) is export {
+#| jmp in - search in files for matching lines
+multi sub MAIN ('in', *@search-terms) is export {
     my $search-terms = @search-terms.join(' ');
     $jmp.search-in-files($search-terms);
+}
+
+#| jmp to - locate a file, optionally at a line number
+multi sub MAIN ('to', $filename, Int $line-number = 0) is export {
+    if $line-number > 0 {
+        $jmp.edit-file($filename, $line-number);
+    }
+    else {
+        $jmp.locate-files($filename);
+    }
 }
 
 #| jmp on files found in command output

@@ -38,6 +38,11 @@ method edit-file-at-matching-line ($filename, $search-terms) {
     return $!editor.edit($.command, $hit);
 }
 
+method locate-files ($search-terms) {
+    my @hits = self.finder.find-files-on-filesystem($search-terms);
+    self.display-hits(@hits);
+}
+
 method find-files-in-command-output ($sub-command) {
     my @hits = self.finder.find-files-in-command-output($sub-command);
     self.display-hits(@hits);

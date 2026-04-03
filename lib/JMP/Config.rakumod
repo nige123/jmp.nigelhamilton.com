@@ -56,45 +56,103 @@ class JMP::Config {
         $!config-file.IO.spurt(q:to"CONFIG");
 
         #--------------------------------------------------------------------
-        # uncomment or add your favourite text editor
+        # Editor — uncomment or add your favourite text editor
         #--------------------------------------------------------------------
 
+        # nano — simple terminal editor (Linux, macOS, Windows/WSL)
         editor.command.template   = nano +[-line-number-] "[-filename-]"
 
-        # atom has Raku syntax highlighting and other plugins for Raku
-        # editor.command.template   = atom [-filename-]:[-line-number-] &
-
+        # VS Code — popular cross-platform editor (Linux, macOS, Windows)
         # editor.command.template   = code -g [-filename-]:[-line-number-] &
 
-        # editor.command.template   = subl [-filename-]:[-line-number-] &
-        # editor.command.template   = emacs +[-line-number-]
+        # Vim — ubiquitous terminal editor (Linux, macOS, Windows)
         # editor.command.template   = vim +[-line-number-] [-filename-]
 
+        # Neovim — modern Vim fork (Linux, macOS, Windows)
+        # editor.command.template   = nvim +[-line-number-] [-filename-]
+
+        # Emacs — extensible editor (Linux, macOS, Windows)
+        # editor.command.template   = emacs +[-line-number-] [-filename-]
+
+        # Sublime Text — fast GUI editor (Linux, macOS, Windows)
+        # editor.command.template   = subl [-filename-]:[-line-number-] &
+
+        # Helix — post-modern terminal editor (Linux, macOS, Windows)
+        # editor.command.template   = hx [-filename-]:[-line-number-]
+
+        # Micro — intuitive terminal editor (Linux, macOS, Windows)
+        # editor.command.template   = micro +[-line-number-] [-filename-]
+
+        # Atom — hackable editor (Linux, macOS, Windows) [discontinued but still used]
+        # editor.command.template   = atom [-filename-]:[-line-number-] &
+
         #--------------------------------------------------------------------
-        # uncomment or add your preferred code searching tool (below)
+        # Search — uncomment or add your preferred code searching tool
+        # Used by: jmp in <search-terms>
         #--------------------------------------------------------------------
 
-        # ripgrep - fast recursive search with stable file:line:text output
+        # ripgrep — fast recursive search (Linux, macOS, Windows)
         find.command.template       = rg --line-number --with-filename --no-heading --color never '[-search-terms-]'
 
-        # ag - the silver searcher for generic fast file searching
+        # ag — the silver searcher (Linux, macOS, Windows)
         # find.command.template     = ag --nogroup '[-search-terms-]'
 
-        # git grep - for fast search of git repositories
+        # git grep — search within git repositories (any platform with git)
         # find.command.template     = git grep --full-name --untracked --text --line-number -e '[-search-terms-]'
 
-        # App::Ack - Perl-powered improvement to grep
+        # ack — Perl-powered grep alternative (Linux, macOS, Windows)
         # find.command.template     = ack --nogroup '[-search-terms-]'
 
+        # grep — universal fallback (Linux, macOS)
+        # find.command.template     = grep -rn '[-search-terms-]' .
+
         #--------------------------------------------------------------------
-        # uncomment or add your preferred browser launch command
+        # Locate — uncomment or add your preferred file locating tool
+        # Used by: jmp to <filename>
         #--------------------------------------------------------------------
 
-        # open a browser at a URL
-        browser.command.template       = elinks '[-url-]'
+        # locate — fast indexed file search (Linux, macOS with findutils)
+        locate.command.template     = locate '[-search-terms-]'
 
-		# open the default browser on Mac OS
-        browser.command.template       = open '[-url-]'
+        # plocate — fast modern replacement for locate (newer Linux distros)
+        # locate.command.template   = plocate '[-search-terms-]'
+
+        # mlocate — common on Ubuntu/Debian
+        # locate.command.template   = mlocate '[-search-terms-]'
+
+        # fd — simple, fast find alternative (Linux, macOS, Windows)
+        # locate.command.template   = fd --type f '[-search-terms-]'
+
+        # find — universal fallback, no index needed (Linux, macOS)
+        # locate.command.template   = find / -name '*[-search-terms-]*' -type f 2>/dev/null
+
+        # mdfind — macOS Spotlight search from terminal
+        # locate.command.template   = mdfind -name '[-search-terms-]'
+
+        # everything — voidtools Everything CLI for Windows (very fast)
+        # locate.command.template   = es -name '[-search-terms-]'
+
+        # where — Windows built-in file search
+        # locate.command.template   = where /r \\ [-search-terms-]
+
+        #--------------------------------------------------------------------
+        # Browser — uncomment or add your preferred browser launch command
+        #--------------------------------------------------------------------
+
+        # xdg-open — open URLs in default browser (Linux)
+        browser.command.template       = xdg-open '[-url-]'
+
+        # open — open URLs in default browser (macOS)
+        # browser.command.template   = open '[-url-]'
+
+        # start — open URLs in default browser (Windows)
+        # browser.command.template   = start '[-url-]'
+
+        # elinks — terminal-based browser (Linux, macOS)
+        # browser.command.template   = elinks '[-url-]'
+
+        # wslview — open URLs from WSL in Windows browser
+        # browser.command.template   = wslview '[-url-]'
 
         CONFIG
 

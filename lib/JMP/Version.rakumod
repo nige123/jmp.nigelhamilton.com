@@ -1,3 +1,3 @@
 unit module JMP::Version;
 
-our constant VERSION = '52';
+our constant VERSION = '53';

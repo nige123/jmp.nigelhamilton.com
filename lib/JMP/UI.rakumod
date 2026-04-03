@@ -71,7 +71,7 @@ class JMP::UI {
     method !render-search-prompt {
         return unless $!title-pane;
 
-        self!render-title-line('jmp to ' ~ $!search-buffer ~ self!green-cursor);
+        self!render-title-line('jmp in ' ~ $!search-buffer ~ self!green-cursor);
     }
 
     method !render-output-prompt {
@@ -112,14 +112,14 @@ class JMP::UI {
             'Left           Return focus from preview to results',
             'Up / Down      Move selection',
             'PageUp / l     Page through content',
-            't              Jump to text in files (jmp to ...)',
-            'o              Jump on files in command output output (jmp on ...)',
+            'i              Search in files (jmp in ...)',
+            'o              Jump on files in command output (jmp on ...)',
             'q / x          Quit jmp',
             'h / ?          Show this help',
         );
 
         unless $!searcher.defined {
-            @lines = @lines.grep(* !~~ /^ 't' \s/);
+            @lines = @lines.grep(* !~~ /^ 'i' \s/);
         }
 
         unless $!outputer.defined {
@@ -158,7 +158,7 @@ class JMP::UI {
         my $trimmed = $terms.trim;
         return False unless $trimmed;
 
-        $!title = 'jmp to ' ~ $trimmed;
+        $!title = 'jmp in ' ~ $trimmed;
         my @new-hits = $!searcher.($trimmed);
         self!load-results-into-pane($results, @new-hits);
         return True;
@@ -321,12 +321,13 @@ class JMP::UI {
         # Display help text in preview pane
         $preview.put('Press Right Arrow on a result to preview the file here.');
         $preview.put('Press Right Arrow again in this pane to open the editor.');
-        $preview.put('Press [o] in results to run a command and jump on its output.');
+        $preview.put('Press [i] to search in files for keywords.');
+        $preview.put('Press [o] to run a command and jump on its output.');
 
         # Display key hints in footer pane.
-        my $to-hint = $!searcher.defined ?? '  [t]o search' !! '';
+        my $in-hint = $!searcher.defined ?? '  [i]n search' !! '';
         my $on-hint = $!outputer.defined ?? '  [o]n cmd'    !! '';
-        $!footer-text = '[↑][↓] [←][→] select ' ~ $to-hint ~ $on-hint ~ '  [h]elp  [q]uit';
+        $!footer-text = '[↑][↓] [←][→] select ' ~ $in-hint ~ $on-hint ~ '  [h]elp  [q]uit';
         $!title-pane  = $title;
         $!footer-pane = $footer;
         self!restore-chrome($ui);
@@ -449,7 +450,7 @@ class JMP::UI {
         });
 
         if $!searcher.defined {
-            $ui.bind(t => 'new-search');
+            $ui.bind(i => 'new-search');
             $ui.on-sync(|{
                 'new-search' => -> {
                     $ui.focus(pane => 1);

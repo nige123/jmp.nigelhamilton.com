@@ -86,6 +86,18 @@ class JMP::Finder {
         return @hits;
     }
 
+    #| locate files on the filesystem
+    method find-files-on-filesystem ($search-terms) {
+
+        my $locate-command = $!config.get('locate.command.template', { :$search-terms });
+
+        my $proc = run '/bin/sh', '-c', $locate-command, :out;
+        return $proc.out.lines(:enc('utf8-c8')).map({
+                    JMP::File::HitLater.new(text-to-match => $_)
+                });
+
+    }
+
     #| find matching lines
     method find-files-in-command-output ($command) {
 

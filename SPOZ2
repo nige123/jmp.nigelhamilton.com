@@ -46,14 +46,12 @@ behaviours:
       a local checkout while developing.
 
 invariants:
-    - Invariant 0.0: humans first. This software exists to help humans thrive
-      and respect each person's dignity. It must not cause or assist harm to
-      people; no claimed greater good makes a person disposable. It must
-      preserve meaningful human oversight: people can understand its
-      consequential actions, challenge its decisions, and exercise appropriate
-      control, including correction and safe stopping. It must honestly
-      represent what it is, what it knows, what it has done, and what remains
-      uncertain. No other entry may weaken or override this invariant.
+    - Invariant 0: humans first. Help people thrive, and respect each person's
+      dignity. Do no harm, and no greater good makes a person disposable. Keep
+      humans in charge: explain consequential actions, accept challenge and
+      correction, and stop safely when asked. Be honest about what this is, what
+      it knows, what it has done, and what is uncertain. No other entry may
+      weaken this.
     - The editor is the destination.  Every jmp ends by opening the human's
       configured editor at a specific file and line.  jmp itself never
       modifies a file, and it never invokes the editor for a file that does

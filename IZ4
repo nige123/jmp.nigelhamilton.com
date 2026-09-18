@@ -24,8 +24,10 @@ INVARIANT 6
 The tools are the human's own. The editor, in-file search, file locating and
 browser commands are command templates read from the config file at `~/.jmp`;
 jmp orchestrates them and hard-codes none of them. On first run the config file
-is created with working defaults and commented cross-platform alternatives, so
-jmp works out of the box and the config file teaches its own format.
+is created with working defaults and commented cross-platform alternatives.
+
+BECAUSE
+Jmp works out of the box and the config file teaches its own format.
 
 INVARIANT 7
 Every jmp is remembered. Completing a jmp records both the command that led

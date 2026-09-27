@@ -1,6 +1,7 @@
 IZ4
 
-# Every IZ4 inherits Invariants 0-4 ('iz4 invariants' shows them).
+# Every IZ4 inherits Invariants 0-4: human intention protected.
+# Read them at https://iz4.you/invariant-zero ('iz4 invariants' prints them).
 # Project invariants begin at 5.
 
 IS FOR WHAT?
@@ -20,6 +21,11 @@ The editor is the destination. Every jmp ends by opening the human's configured
 editor at a specific file and line. jmp itself never modifies a file, and it
 never invokes the editor for a file that does not exist.
 
+BECAUSE
+jmp is glue between finding something and editing it. The human's own editor
+does the editing, and jmp earns trust by never touching a file itself and never
+sending the editor somewhere that does not exist.
+
 INVARIANT 6
 The tools are the human's own. The editor, in-file search, file locating and
 browser commands are command templates read from the config file at `~/.jmp`;
@@ -35,18 +41,34 @@ there and the chosen destination - path, line and matching text - in
 `~/.jmp.hist`, most recent first, capped at the last 500 entries. Running bare
 `jmp` replays that history.
 
+BECAUSE
+Places you have already been should be one keypress away; the history is what
+makes bare jmp useful.
+
 INVARIANT 8
 `jmp on` accepts any command. It runs the command as given, captures both
 standard output and standard error, and lets the human jump to any file
 reference found in that combined output. Arbitrary output never has to parse
 cleanly for jmp to be useful on it.
 
+BECAUSE
+Useful file references turn up in the output of every tool, including error
+output, and jmp should work on them without needing a parser for each tool.
+
 INVARIANT 9
 Search is line-addressed. In-file search presents hits grouped by file with the
 matching line and its line number, and jumping to a hit opens the editor at that
 exact line, not merely at the file.
 
+BECAUSE
+Getting to the exact line is the whole point; landing at the top of the file
+leaves the human searching again.
+
 INVARIANT 10
 Raku leads, Go follows. New behaviour is implemented and proven in the Raku
 implementation first, then carried over to the Go implementation. Both
 implementations answer to this file.
+
+BECAUSE
+One intent, two implementations. Proving behaviour in the reference first keeps
+the port from drifting into a rival spec.

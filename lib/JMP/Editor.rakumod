@@ -19,8 +19,13 @@ class JMP::Editor {
     #| call a configured $EDITOR to open at a specfic line
     method edit-at-line ($filename, $line-number = 1) {
 
-        # render $EDITOR command template - found in the config file
-        my $edit-file-command = $!config.get('editor.command.template', { :$filename, :$line-number });
+        # render $EDITOR command template - found in the config file.
+        # The filename is double-quoted here, so a template never needs to
+        # quote it (config values have their double quotes stripped).
+        my $edit-file-command = $!config.get('editor.command.template', {
+            filename    => '"' ~ $filename ~ '"',
+            :$line-number,
+        });
 
         # After UI.shutdown in the calling code, our stdin/stdout are already
         # restored to normal. Just shell the editor command directly with no
@@ -35,4 +40,3 @@ class JMP::Editor {
     }
 
 }
-

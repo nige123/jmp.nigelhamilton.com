@@ -10,7 +10,7 @@ class JMP::Config {
     # get a simple value for a config field
     multi method get ($key) {
 
-        die "Key $key does not exist in config file. Please add a value for $key to $.config-file"
+        die "key $key does not exist in config file. Please add a value for $key to $.config-file"
             unless %!fields{$key}:exists;
         return %!fields{$key};
 
@@ -28,18 +28,23 @@ class JMP::Config {
         my %fields;
         for $!config-file.IO.lines {
 
-            # skip comments
-            next if .starts-with('#');
+            # trim first, so an indented comment is still a comment
+            my $line = .trim;
 
-            # config_keys.CAN.look-like.this
-            # ^ $ - mark the start an end of line
-            next unless /^ (.*?) '=' (.*?) $/;
+            # skip blank lines and comments
+            next if $line eq '' or $line.starts-with('#');
 
-            # save the key and value in config
-            # $0 and $1 refer to the match objects in the regex
-            # ~$0 stringifies the match object
+            # config_keys.CAN.look-like.this = value
+            # split on the first '='
+            next unless $line ~~ /^ (.*?) '=' (.*) $/;
+
             # trim removes leading and trailing whitespace
-            %fields{~$0.trim} = ~$1.trim;
+            my $key   = (~$0).trim;
+            # double quotes are removed from values: jmp quotes filenames itself
+            my $value = (~$1).trim.subst('"', '', :g);
+            next unless $key;
+
+            %fields{$key} = $value;
 
         }
         return %fields;
@@ -60,7 +65,7 @@ class JMP::Config {
         #--------------------------------------------------------------------
 
         # nano — simple terminal editor (Linux, macOS, Windows/WSL)
-        editor.command.template   = nano +[-line-number-] "[-filename-]"
+        editor.command.template   = nano +[-line-number-] [-filename-]
 
         # VS Code — popular cross-platform editor (Linux, macOS, Windows)
         # editor.command.template   = code -g [-filename-]:[-line-number-] &
@@ -126,14 +131,14 @@ class JMP::Config {
         # find — universal fallback, no index needed (Linux, macOS)
         # locate.command.template   = find / -name '*[-search-terms-]*' -type f 2>/dev/null
 
+        # where — Windows built-in file search
+        # locate.command.template   = where /r \\ [-search-terms-]
+
         # mdfind — macOS Spotlight search from terminal
         # locate.command.template   = mdfind -name '[-search-terms-]'
 
         # everything — voidtools Everything CLI for Windows (very fast)
         # locate.command.template   = es -name '[-search-terms-]'
-
-        # where — Windows built-in file search
-        # locate.command.template   = where /r \\ [-search-terms-]
 
         #--------------------------------------------------------------------
         # Browser — uncomment or add your preferred browser launch command

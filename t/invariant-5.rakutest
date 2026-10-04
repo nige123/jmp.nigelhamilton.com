@@ -1,0 +1,67 @@
+# iz4 draft: an agent wrote this test; review it, run it, make sure it can fail, then delete this line
+# Invariant 5: The editor is the destination. Every jmp ends by opening the human's configured editor at a specific file and line. jmp itself never modifies a file, and it never invokes the editor for a file that does not exist.
+# BECAUSE jmp is glue between finding something and editing it. The human's own editor does the editing, and jmp earns trust by never touching a file itself and never sending the editor somewhere that does not exist.
+
+use v6;
+use lib 'lib';
+
+use Test;
+use JMP::Config;
+use JMP::Editor;
+use JMP::File::Hit;
+use JMP::Memory;
+
+plan 6;
+
+# keep the test away from the real ~/.jmp and ~/.jmp.hist
+my $*HOME = $*TMPDIR.add('jmp-invariant-5-test-' ~ $*PID);
+$*HOME.mkdir;
+
+# the "editor" is a command that records how it was called, so the test
+# can see which file and line jmp handed to it
+my $editor-log = $*HOME.add('editor.log');
+$*HOME.add('.jmp').spurt(
+    "editor.command.template = echo [-line-number-] [-filename-] >> $editor-log\n"
+);
+
+my $config = JMP::Config.new;
+my $memory = JMP::Memory.new;
+my $editor = JMP::Editor.new(:$config, :$memory);
+
+# a jmp to a file that exists opens the configured editor at that file and line
+my $target   = $*HOME.add('target.txt');
+my $contents = "line 1\nline 2\nline 3\n";
+$target.spurt($contents);
+
+$editor.edit('jmp to target.txt 2', JMP::File::Hit.new(
+    relative-path => 'target.txt',
+    absolute-path => $target.absolute,
+    line-number   => 2,
+    matching-text => 'line 2',
+));
+
+ok $editor-log.e, 'the configured editor was invoked';
+is $editor-log.slurp.trim, '2 ' ~ $target.absolute,
+    'the editor was sent to the chosen file at the chosen line';
+is $target.slurp, $contents, 'jmp did not modify the file it opened';
+
+# a jmp to a file that does not exist never reaches the editor
+$editor-log.unlink;
+my $missing = $*HOME.add('no-such-file.txt');
+
+$editor.edit('jmp to no-such-file.txt 1', JMP::File::Hit.new(
+    relative-path => 'no-such-file.txt',
+    absolute-path => $missing.absolute,
+    line-number   => 1,
+));
+
+nok $editor-log.e, 'the editor is not invoked for a file that does not exist';
+nok $missing.e, 'jmp did not create the missing file';
+
+my $history = $*HOME.add('.jmp.hist');
+my $remembered = $history.slurp;
+nok $remembered.contains('no-such-file.txt'),
+    'a jmp that did not reach the editor is not remembered as one';
+
+.unlink for $editor-log, $target, $history, $*HOME.add('.jmp');
+rmdir $*HOME;

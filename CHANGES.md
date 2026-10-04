@@ -2,6 +2,51 @@
 
 Date: 2026-03-28
 
+## Release 54 (2026-09-30)
+
+### Summary
+
+This release brings the Raku implementation level with go-jmp v70, and adds a reproducible standalone build with Raku++.
+
+### Highlights
+
+- `[t]o file` in the interface: press `t`, type a filename and press Enter to locate it on the filesystem, alongside `[i]n search` and `[o]n cmd`.
+- The footer has three zones: a `current/total` cursor counter for the focused pane at the left, the actions centred, and the version at the right. The actions give way first when the terminal is narrow.
+- The results pane takes 35% of the terminal height and the preview the rest, instead of a fixed 15 rows.
+- The preview shows the file's lines without line-number prefixes; an empty file previews as one empty line.
+- Config values have double quotes stripped, indented comments are skipped, and `jmp` quotes the filename it passes to the editor itself, so the default editor template is now `nano +[-line-number-] [-filename-]`. Unknown `[-tokens-]` in a template are left as they are.
+- `jmp edit <file>` opens at line 1; `jmp edit` and `jmp to` without a filename, and `jmp back` with a count that is not a number, fail with a one-line error and exit 1; `jmp version` and `jmp help` ignore extra arguments; `jmp to <file> <not-a-number>` locates the file.
+- Titles and history entries are normalised to `jmp`, `jmp in ...`, `jmp on ...` and `jmp to ...`.
+- `jmp on` interleaves standard output and standard error as they happen, and file references in error output match with flexible spacing (`at FILE (Module):N`, `at FILE (Module) line N`); a line number below 1 opens line 1; tabs survive control-character stripping. `jmp in` and `jmp to` no longer let the search tool's standard error write over the interface.
+- `rakupp/build.sh` builds a standalone `build/jmp` with Raku++ (4.0.1 and 5.1.0), applying the `Terminal::UI` patches Raku++ needs; the test suite has a `JMP_TEST_BIN` seam to run the CLI tests against the compiled file.
+- The preview pane loads its window without scrolling the terminal once per line, so it lands on the selected line in a fraction of the time (about five times faster under Raku++).
+- The interface builds its panes through Terminal::UI's array path: Rakudo 2026.07 reads the callback candidate's `Callable :&heights!` as `Callable[Callable]`, which left the interface unable to start under Rakudo.
+- Bumped project version to `54` in code and metadata.
+
+### Validation Notes
+
+- `TERM=dumb prove -e "raku -Ilib" t/` passed (15 files, 109 tests).
+- `TERM=dumb prove -e "rakupp -Ilib" t/` passed under Raku++ 4.0.1 and 5.1.0 (one `use-ok` skipped, because Raku++ runs an imported MAIN inside `use-ok`).
+- `JMP_TEST_BIN=build/jmp prove -e "rakupp -Ilib" t/22-version.t t/30-cli-errors.t` passed against the compiled file, which also ran alone in an empty directory with only the system `PATH`.
+- The interface was driven in a pseudo-terminal under both Rakudo and the compiled file: results, preview at the selected line, the cursor counter and quitting all work.
+
+## Release 53 (2026-08-31)
+
+### Summary
+
+This release backports the three clean command verbs from the Go implementation and grows the jmp history so more destinations stay one keypress away.
+
+### Highlights
+
+- `jmp on <command>` jumps on files found in any command's output, `jmp in` searches in files, and `jmp to` locates files (optionally at a line number).
+- The config file gains `locate.command.template` and cross-platform alternatives for all tools.
+- The `~/.jmp.hist` history is now capped at the last 500 entries (previously 100), per the `every-jmp-is-remembered` invariant (since 53) in `IZ4`; bare `jmp` replays up to 500 recent entries.
+- Bumped project version to `53` in code and metadata.
+
+### Validation Notes
+
+- `TERM=dumb prove -e "raku -Ilib" t/` passed (10 files, 48 tests), including the new `t/25-history-cap.t` covering the 500-entry cap.
+
 ## Release 52 (2026-03-29)
 
 ### Summary

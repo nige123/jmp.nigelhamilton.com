@@ -7,14 +7,12 @@ use JMP::Version;
 plan 2;
 
 my $repo-root = $*PROGRAM.parent.parent;
-my $proc = run(
-    'raku',
-    "-I{$repo-root.child('lib')}",
-    $repo-root.child('bin/jmp').Str,
-    'version',
-    :out,
-    :err,
-);
+
+# JMP_TEST_BIN points at a compiled jmp; otherwise run bin/jmp with this compiler
+my @command = %*ENV<JMP_TEST_BIN>
+    ?? (%*ENV<JMP_TEST_BIN>,)
+    !! ($*EXECUTABLE.Str, "-I{$repo-root.child('lib')}", $repo-root.child('bin/jmp').Str);
+my $proc = run(|@command, 'version', :out, :err);
 
 my $stdout = $proc.out.slurp-rest.chomp;
 my $stderr = $proc.err.slurp-rest.chomp;

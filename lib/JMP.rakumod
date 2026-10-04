@@ -22,7 +22,7 @@ has JMP::Editor $.editor;
 has JMP::Finder $.finder;
 has JMP::Memory $.memory;
 
-has $.command;
+has $.command is rw;
 
 method edit-config {
     $!editor.edit-file($!config.config-file);
@@ -76,6 +76,7 @@ submethod display-hits (@hits) {
         :$!editor,
         searcher => -> $terms { $!finder.find-in-files($terms) },
         outputer => -> $command { $!finder.find-files-in-command-output($command) },
+        locater  => -> $filename { $!finder.find-files-on-filesystem($filename) },
     ).display;
 
 }

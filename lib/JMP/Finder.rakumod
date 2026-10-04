@@ -12,13 +12,22 @@ class JMP::Finder {
         return (~$0, +$1, ~$2);
     }
 
+    #| run a command and return its standard output lines; standard error is captured and discarded
+    method !command-output-lines ($command) {
+        my $proc = run '/bin/sh', '-c', $command, :out, :err;
+        my @lines = $proc.out.lines(:enc('utf8-c8'));
+        # drain stderr after stdout so the search tool cannot write over the UI
+        $proc.err.slurp;
+        return @lines;
+    }
+
     #| go to a specific line number in a file
     method find-line-in-file ($filename, $line-number) {
 
         return JMP::File::Hit.new(
                     relative-path   => $filename,
                     absolute-path   => $filename.IO.absolute, 
-                    line-number     => $line-number, 
+                    line-number     => $line-number < 1 ?? 1 !! $line-number,
                 );
 
     }
@@ -32,12 +41,15 @@ class JMP::Finder {
                     line-number     => 1, 
                 );
 
+        # a file that cannot be read still opens at line 1
+        return $hit unless $filename.IO.f;
+
         my $first-matching-line = 0;
 
         # look through the file for matching lines        
         for $filename.IO.lines -> $line {
             $first-matching-line++;
-            next unless $line.contains($searchterms);
+            next unless $line.chomp.contains($searchterms);
             # found a matching line - remember it
             $hit.line-number = $first-matching-line;
             $hit.matching-text = $line;
@@ -58,8 +70,7 @@ class JMP::Finder {
 
         my $previous-file = '';
 
-        my $proc = run '/bin/sh', '-c', $find-command, :out;
-        for $proc.out.lines(:enc('utf8-c8')) -> $line {
+        for self!command-output-lines($find-command) -> $line {
 
             my ($file-path, $line-number, $matching-text) = self!parse-find-output-line($line);
             next unless $file-path.defined;
@@ -91,27 +102,28 @@ class JMP::Finder {
 
         my $locate-command = $!config.get('locate.command.template', { :$search-terms });
 
-        my $proc = run '/bin/sh', '-c', $locate-command, :out;
-        return $proc.out.lines(:enc('utf8-c8')).map({
+        return self!command-output-lines($locate-command).map({
                     JMP::File::HitLater.new(text-to-match => $_)
-                });
+                }).Array;
 
     }
 
     #| find matching lines
     method find-files-in-command-output ($command) {
 
-        # execute the command
-        my $shell-cmd = shell $command, :out, :err;
+        # execute the command with STDOUT and STDERR interleaved as they happen
+        my $proc = run '/bin/sh', '-c', $command, :out, :merge;
+        my $result = $proc.out.slurp(:enc('utf8-c8'));
 
-        # join STDOUT and STDERR
-        my $result = join("\n", $shell-cmd.out.slurp, $shell-cmd.err.slurp);
+        # normalise line ends and drop the final newline
+        $result = $result.subst("\r\n", "\n", :g);
+        $result = $result.chop if $result.ends-with("\n");
 
         # don't actually look for filenames just yet
         # do that lazily on demand by the user
-        return $result.lines.map({ 
+        return $result.split("\n").map({ 
                     JMP::File::HitLater.new(text-to-match => $_) 
-                });
+                }).Array;
 
     }
 

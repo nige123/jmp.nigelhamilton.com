@@ -6,7 +6,7 @@ use JMP::Memory::Hit;
 # keep a file-based record of the searches and jmps
 class JMP::Memory {
 
-    has $.max-entries = 100;  # keep a record of the last 100 jmps
+    has $.max-entries = 500;  # keep a record of the last 500 jmps
     has $!file;
     has @!latest-jmps;         
 

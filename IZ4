@@ -10,7 +10,7 @@ it". It takes search results, the output of any command, or the places you
 jumped to recently, lets you pick a location and inspect it in a preview, and
 opens your editor at that file and line without leaving the terminal. jmp is
 glue: it finds and presents locations and hands the chosen one to the tools you
-already use. The Raku implementation is the reference; a Go port follows it.
+already use.
 
 IS FOR WHO?
 Developers working in the terminal who want to get from a search result to
@@ -116,12 +116,3 @@ exact line, not merely at the file.
 BECAUSE
 Getting to the exact line is the whole point; landing at the top of the file
 leaves the human searching again.
-
-INVARIANT 10
-Raku leads, Go follows. New behaviour is implemented and proven in the Raku
-implementation first, then carried over to the Go implementation. Both
-implementations answer to this file.
-
-BECAUSE
-One intent, two implementations. Proving behaviour in the reference first keeps
-the port from drifting into a rival spec.

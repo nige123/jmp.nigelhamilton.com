@@ -17,6 +17,8 @@ on:
   pull_request:
   push:
     branches: [main, master]
+env:
+  RAKUPP_VERSION: v5.2.1
 jobs:
   gate:
     runs-on: ubuntu-latest
@@ -26,13 +28,23 @@ jobs:
           fetch-depth: 0
       - name: fetch approvals (detached, outside every tree)
         run: git fetch origin 'refs/iz4/approvals/*:refs/iz4/approvals/*' || true
-      - uses: Raku/setup-raku@v1
-        with:
-          raku-version: latest
-      - name: iz4 from its own repository, outside the tree under review
+      - name: Raku++, pinned and checksum-verified
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "$RAKUPP_VERSION" -R ash/rakupp -D "$RUNNER_TEMP/dl" -p rakupp-linux-x86_64.tar.gz -p rakupp-linux-x86_64.tar.gz.sha256
+          exp=$(grep -o -i '^[0-9a-f]\{64\}' "$RUNNER_TEMP/dl/rakupp-linux-x86_64.tar.gz.sha256")
+          got=$(sha256sum "$RUNNER_TEMP/dl/rakupp-linux-x86_64.tar.gz" | awk '{print $1}')
+          [ -n "$exp" ] && [ "$exp" = "$got" ] || { echo "checksum mismatch: expected $exp, got $got"; exit 1; }
+          mkdir -p "$RUNNER_TEMP/rakupp" && tar xzf "$RUNNER_TEMP/dl/rakupp-linux-x86_64.tar.gz" -C "$RUNNER_TEMP/rakupp"
+          RAKUPP=$(find "$RUNNER_TEMP/rakupp" -type f -name rakupp -path '*/bin/*' | head -1)
+          [ -n "$RAKUPP" ] || { echo "rakupp not found in the archive"; exit 1; }
+          echo "RAKUPP=$RAKUPP" >> "$GITHUB_ENV"
+          "$RAKUPP" --version
+      - name: iz4 from its own repository, outside the tree under review, run from source under Raku++
         run: |
           git clone --quiet --depth 1 https://github.com/nige123/cli.iz4.you "$RUNNER_TEMP/iz4"
-          printf '#!/bin/sh\nexec raku -I "%s/lib" "%s/bin/iz4" "$@"\n' "$RUNNER_TEMP/iz4" "$RUNNER_TEMP/iz4" > "$RUNNER_TEMP/iz4-bin"
+          printf '#!/bin/sh\nexec "%s" -I "%s/lib" "%s/bin/iz4" "$@"\n' "$RAKUPP" "$RUNNER_TEMP/iz4" "$RUNNER_TEMP/iz4" > "$RUNNER_TEMP/iz4-bin"
           chmod +x "$RUNNER_TEMP/iz4-bin"
           "$RUNNER_TEMP/iz4-bin" version
       - name: allowed signers, from a repository variable, never from the tree

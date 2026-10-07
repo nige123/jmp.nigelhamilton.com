@@ -1,0 +1,57 @@
+# The iz4 gate at the acceptance boundary: does this change alter a
+# commitment in the IZ4 (what the software is for, who for, an invariant),
+# or remove or weaken a test that names one, without a person's agreement?
+#
+# It runs iz4 from its own repository and reads the allowed signers from a
+# repository variable, so the change under review controls neither. An
+# approval is a signed, detached document under refs/iz4/approvals/, made
+# with:  iz4 approve --staged --sign=<key> --by=<principal>
+#
+# This boundary checks commitments, protections and approvals. It does not
+# run the tests that name invariants: this runner has none of the project's
+# dependencies or services, so those are reported as unassessed (a warning)
+# here and are run by the gate on the developer's machine. docs/gate.md in
+# https://github.com/nige123/cli.iz4.you has the whole contract.
+name: iz4 gate
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: fetch approvals (detached, outside every tree)
+        run: git fetch origin 'refs/iz4/approvals/*:refs/iz4/approvals/*' || true
+      - uses: Raku/setup-raku@v1
+        with:
+          raku-version: latest
+      - name: iz4 from its own repository, outside the tree under review
+        run: |
+          git clone --quiet --depth 1 https://github.com/nige123/cli.iz4.you "$RUNNER_TEMP/iz4"
+          printf '#!/bin/sh\nexec raku -I "%s/lib" "%s/bin/iz4" "$@"\n' "$RUNNER_TEMP/iz4" "$RUNNER_TEMP/iz4" > "$RUNNER_TEMP/iz4-bin"
+          chmod +x "$RUNNER_TEMP/iz4-bin"
+          "$RUNNER_TEMP/iz4-bin" version
+      - name: allowed signers, from a repository variable, never from the tree
+        run: |
+          printf '%s\n' "${{ vars.IZ4_ALLOWED_SIGNERS }}" > "$RUNNER_TEMP/allowed_signers"
+          [ -s "$RUNNER_TEMP/allowed_signers" ] || echo "::warning::IZ4_ALLOWED_SIGNERS is empty: no approval can be accepted here"
+      - name: iz4 gate
+        run: |
+          if [ "${{ github.event_name }}" = pull_request ]; then
+            BASE=$(git merge-base "origin/${{ github.base_ref }}" HEAD)
+          else
+            BASE="${{ github.event.before }}"
+            case "$BASE" in 0000000000000000000000000000000000000000|'') BASE=none;; esac
+          fi
+          set +e
+          "$RUNNER_TEMP/iz4-bin" gate --candidate=HEAD --base="$BASE" --enforce --/checks --approvers="$RUNNER_TEMP/allowed_signers"
+          rc=$?
+          if [ "$rc" -eq 4 ]; then
+            echo "::warning::iz4 gate: unassessed - the tests that name invariants are not run at this boundary; commitments, protections and approvals were checked"
+            exit 0
+          fi
+          exit "$rc"

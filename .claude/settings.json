@@ -1,0 +1,36 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "iz4 hook pre-edit",
+            "type": "command"
+          }
+        ],
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit"
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "iz4 hook session-start",
+            "type": "command"
+          }
+        ],
+        "matcher": "startup|resume|compact"
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "iz4 hook stop",
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  }
+}

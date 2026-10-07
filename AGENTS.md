@@ -73,7 +73,7 @@ A change is only done when:
 - docs or examples were updated if needed
 - the final summary states what was checked and what was not checked
 
-<!-- IZ4-AGENT v3 START (managed by 'iz4 agent install'; edits inside are overwritten) -->
+<!-- IZ4-AGENT v4 START (managed by 'iz4 agent install'; edits inside are overwritten) -->
 ## Project intent: IZ4
 
 This repository keeps an IZ4: what the software is for, who it is
@@ -98,4 +98,13 @@ implementation detail to it.
 
 This section can only encourage adherence in tools that load this
 file.  It is not evidence that any agent read the IZ4 or followed it.
+
+To the people who own this repository: the lines above only ask.
+To have the agent harness deliver the packet itself, refuse an edit
+made before it, and refuse to end a turn that changed files without
+the per-invariant report, run:
+
+    iz4 agent install --hooks --strict
+
+'iz4 agent status' says what is wired and what each harness enforces.
 <!-- IZ4-AGENT END -->

@@ -1,3 +1,4 @@
+# INVARIANT editor-is-the-destination.jmp.nigelhamilton.com (was Invariant 5)
 # iz4 draft: an agent wrote this test; review it, run it, make sure it can fail, then delete this line
 # Invariant 5: The editor is the destination. Every jmp ends by opening the human's configured editor at a specific file and line. jmp itself never modifies a file, and it never invokes the editor for a file that does not exist.
 # BECAUSE jmp is glue between finding something and editing it. The human's own editor does the editing, and jmp earns trust by never touching a file itself and never sending the editor somewhere that does not exist.

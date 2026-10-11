@@ -1,7 +1,7 @@
 IZ4
 
 # Every IZ4 carries the foundation word for word: human intention protected.
-# It begins with Invariant Zero, humans first: https://iz4.you/invariant-zero. It is the same in every IZ4 and not yours to edit.
+# It begins with Invariant Zero, humans first: https://iz4.you/foundation. It is the same in every IZ4 and not yours to edit.
 # Your own invariants are named under your project's domain.
 
 IS FOR WHAT?
@@ -18,7 +18,7 @@ editing it quickly.
 
 # The foundation: the same words in every IZ4.
 # Invariant Zero, humans-first.iz4.you, is the foundation of the foundation.
-# 'iz4 check' refuses a file where any of it is missing or altered, and
+# If any of it goes missing or changes, 'iz4 check' says so and
 # 'iz4 foundation restore' puts it back.
 
 INVARIANT humans-first.iz4.you
